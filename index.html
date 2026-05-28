@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CPC Obuka — Baza pitanja</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d1117;
+  --navy:#0f2744;
+  --blue:#1a4b8c;
+  --blue2:#1565c0;
+  --red:#c62828;
+  --green:#1b5e20;
+  --amber:#e65100;
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --border:#d0d7e3;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+  --r:12px;
+}
+body{font-family:var(--sans);background:var(--bg);min-height:100vh;padding:10px}
+#app{width:100%;max-width:560px;margin:0 auto}
+.screen{display:none}.screen.active{display:block}
+
+/* ===== LOGIN ===== */
+.login-wrap{min-height:96vh;display:flex;align-items:center;justify-content:center}
+.login-card{background:var(--card);border-radius:18px;border:2px solid var(--border);padding:40px 28px;width:100%;text-align:center;box-shadow:0 8px 40px rgba(15,39,68,.10)}
+.login-icon{width:64px;height:64px;background:var(--navy);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:28px}
+.login-org{font-size:11px;font-weight:700;letter-spacing:3px;color:var(--blue);text-transform:uppercase;margin-bottom:6px;font-family:var(--mono)}
+.login-title{font-size:22px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.login-sub{font-size:13px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.login-label{display:block;font-size:11px;font-weight:700;color:#374151;text-align:left;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase}
+.login-input{width:100%;padding:14px 18px;border:2px solid var(--border);border-radius:10px;font-size:20px;letter-spacing:6px;text-align:center;outline:none;transition:all .15s;font-family:var(--mono);color:var(--ink);background:#fafbfc}
+.login-input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,75,140,.10);background:#fff}
+.login-btn{width:100%;padding:15px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;letter-spacing:.5px;transition:background .15s;font-family:var(--sans)}
+.login-btn:hover{background:var(--blue2)}
+.login-err{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:13px;color:#b91c1c;margin-top:12px;display:none}
+.login-err.show{display:block}
+.locked-card{background:#fff;border-radius:18px;border:2px solid #fca5a5;padding:52px 28px;width:100%;text-align:center}
+.locked-icon{font-size:56px;margin-bottom:14px}
+.locked-title{font-size:20px;font-weight:700;color:var(--red);margin-bottom:8px}
+.locked-sub{font-size:13px;color:#6b7280;line-height:1.6}
+
+/* ===== HOME ===== */
+.home-top{background:var(--navy);border-radius:var(--r) var(--r) 0 0;padding:24px 20px 20px;position:relative;overflow:hidden}
+.home-top::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,.05);border-radius:50%}
+.home-top h1{font-size:19px;font-weight:700;color:#fff;margin-bottom:4px}
+.home-top p{font-size:12px;color:rgba(255,255,255,.65);font-family:var(--mono)}
+.home-body{background:var(--card);border-radius:0 0 var(--r) var(--r);border:2px solid var(--border);border-top:none;padding:18px}
+.info-bar{background:#eff6ff;border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#1e40af;line-height:1.6;margin-bottom:16px}
+.menu-item{display:flex;align-items:center;gap:14px;background:var(--bg);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.menu-item:hover{background:#eef2ff;border-color:#c7d2fe}
+.menu-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.menu-icon.blue{background:#dbeafe}
+.menu-icon.green{background:#dcfce7}
+.menu-icon.amber{background:#fff7ed}
+.menu-icon.purple{background:#f3e8ff}
+.menu-icon.slate{background:#f1f5f9}
+.menu-text h3{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.menu-text p{font-size:11px;color:#6b7280}
+.menu-badge{margin-left:auto;background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--mono);white-space:nowrap}
+.footer{text-align:center;font-size:11px;color:#9ca3af;margin-top:12px;padding-bottom:16px;font-family:var(--mono)}
+
+/* ===== SEKCIJA HEADER ===== */
+.sec-header{background:var(--navy);padding:14px 16px;border-radius:var(--r) var(--r) 0 0;display:flex;align-items:center;gap:10px}
+.back-btn{background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-title{color:#fff;font-size:13px;font-weight:700;flex:1;font-family:var(--mono)}
+.sec-body{background:var(--card);border:2px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);padding:18px}
+
+/* ===== PITANJE a/b/c/d ===== */
+.q-num{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-family:var(--mono)}
+.progress-bar{background:#e5e7eb;border-radius:4px;height:4px;margin-bottom:16px}
+.progress-fill{background:var(--blue);border-radius:4px;height:4px;transition:width .3s}
+.q-text{font-size:14px;font-weight:600;color:var(--ink);line-height:1.6;margin-bottom:16px}
+.opt{display:block;width:100%;text-align:left;background:var(--bg);border:2px solid var(--border);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--ink);cursor:pointer;margin-bottom:8px;transition:all .12s;font-family:var(--sans);line-height:1.4}
+.opt:hover:not(:disabled){background:#eef2ff;border-color:#a5b4fc}
+.opt.correct{background:#f0fdf4;border-color:#22c55e;color:#166534}
+.opt.wrong{background:#fef2f2;border-color:#f87171;color:#991b1b}
+.opt.reveal{background:#f0fdf4;border-color:#22c55e;color:#166534}
+.exp-box{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:9px;padding:12px 14px;font-size:12px;color:#78350f;line-height:1.6;margin-bottom:12px;display:none}
+.exp-box strong{color:#92400e}
+.next-btn{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;display:none;font-family:var(--sans)}
+.next-btn.show{display:block}
+
+/* ===== SVG DIJAGRAM WRAPPER ===== */
+.diagram-wrap{border:2px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;background:#fff}
+.diagram-title{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:8px 12px;letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+
+/* ===== DA/NE ===== */
+.dane-label{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;padding:10px 12px;background:var(--bg);border-radius:8px}
+.dane-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.dane-btn{padding:14px;font-size:15px;font-weight:800;border:2px solid var(--border);border-radius:10px;cursor:pointer;background:var(--bg);transition:all .15s;font-family:var(--sans)}
+.dane-btn:hover:not(:disabled){transform:scale(1.02)}
+.dane-btn.da-ok{background:#f0fdf4;border-color:#22c55e;color:#166534}
+.dane-btn.ne-ok{background:#fef2f2;border-color:#f87171;color:#991b1b}
+.dane-btn.wrong-sel{background:#fef2f2;border-color:#f87171;opacity:.6}
+.exp-full{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:9px;padding:13px;font-size:12px;color:#78350f;line-height:1.7;margin-bottom:12px;display:none}
+.exp-full ul{padding-left:16px;margin-top:6px}
+.exp-full li{margin-bottom:4px}
+
+/* ===== UNOS VREMENA ===== */
+.unos-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.unos-row{display:flex;align-items:center;gap:10px;background:var(--bg);padding:10px 12px;border-radius:8px}
+.unos-sym{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-family:var(--mono);font-weight:700;border:1.5px solid var(--border);background:#fff}
+.unos-lbl{font-size:12px;flex:1;line-height:1.4}
+.unos-lbl strong{display:block;font-size:13px;color:var(--ink)}
+.unos-input{width:72px;padding:8px;border:2px solid var(--border);border-radius:7px;font-size:14px;text-align:center;font-family:var(--mono);outline:none;color:var(--ink)}
+.unos-input:focus{border-color:var(--blue)}
+.unos-input.ok{border-color:#22c55e;background:#f0fdf4;color:#166534}
+.unos-input.err{border-color:#f87171;background:#fef2f2;color:#991b1b}
+.check-btn{width:100%;padding:13px;background:var(--amber);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:var(--sans)}
+.result-banner{border-radius:9px;padding:12px;font-size:13px;font-weight:700;text-align:center;margin-bottom:10px;display:none}
+.result-banner.ok{background:#f0fdf4;color:#166534;border:1.5px solid #22c55e}
+.result-banner.err{background:#fef2f2;color:#991b1b;border:1.5px solid #f87171}
+
+/* ===== SCORE ===== */
+.score-wrap{text-align:center;padding:24px 0}
+.score-emoji{font-size:52px;margin-bottom:12px}
+.score-pct{font-size:42px;font-weight:900;font-family:var(--mono)}
+.score-pct.pass{color:var(--green)}
+.score-pct.fail{color:var(--red)}
+.score-sub{font-size:13px;color:#6b7280;margin:8px 0 20px}
+.score-cat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bg);font-size:13px}
+.score-cat:last-child{border-bottom:none}
+.score-val.g{color:var(--green);font-weight:700}
+.score-val.b{color:var(--red);font-weight:700}
+.score-val.m{color:var(--amber);font-weight:700}
+.restart-btn{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;font-family:var(--sans)}
+.back-btn2{width:100%;padding:13px;background:var(--bg);border:2px solid var(--border);border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;font-family:var(--sans);color:var(--ink)}
+
+/* ===== LEGENDA ===== */
+.legenda{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink);font-family:var(--mono)}
+.leg-dot{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+
+
+/* DODATNI STILOVI */
+.mode-card{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;border:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:14px}
+.mode-card:hover{background:#eef2ff;border-color:#c7d2fe}
+.mode-card .mc-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mode-card .mc-text h3{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.mode-card .mc-text p{font-size:11px;color:#6b7280;line-height:1.4}
+.mode-card .mc-badge{margin-left:auto;background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;font-family:var(--mono);white-space:nowrap;flex-shrink:0}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.stat-box{background:var(--bg);border-radius:9px;padding:12px 8px;text-align:center}
+.stat-num{font-size:22px;font-weight:900;color:var(--navy);font-family:var(--mono)}
+.stat-lbl{font-size:10px;color:#6b7280;margin-top:2px}
+
+.test-header-info{background:#eff6ff;border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12px;color:#1e40af;margin-bottom:16px;line-height:1.6}
+
+.score-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 20px}
+.score-box{background:var(--bg);border-radius:9px;padding:12px;text-align:center}
+.score-box .sn{font-size:24px;font-weight:900;font-family:var(--mono)}
+.score-box .sl{font-size:11px;color:#6b7280;margin-top:2px}
+.score-box.ok .sn{color:var(--green)}
+.score-box.bad .sn{color:var(--red)}
+.score-box.amber .sn{color:var(--amber)}
+
+.review-item{padding:12px;border-radius:9px;margin-bottom:8px;border:1.5px solid}
+.review-item.ok{background:#f0fdf4;border-color:#bbf7d0}
+.review-item.bad{background:#fef2f2;border-color:#fecaca}
+.review-q{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.4}
+.review-ans{font-size:12px;margin-bottom:2px}
+.review-ans.correct{color:#166534}
+.review-ans.wrong{color:#991b1b}
+.review-exp{font-size:11px;color:#78350f;margin-top:6px;line-height:1.5;background:#fffbeb;padding:6px 8px;border-radius:6px}
+
+.filter-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;font-family:var(--mono);transition:all .12s}
+.filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.vezba-counter{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12px;color:#6b7280;font-family:var(--mono)}
+.streak{background:#fef3c7;color:#92400e;padding:3px 9px;border-radius:20px;font-weight:700;font-size:11px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+  <div class="login-wrap" id="main-login">
+    <div class="login-card">
+      <div class="login-icon">🎓</div>
+      <div class="login-org">CPC Obuka · Kategorija D</div>
+      <div class="login-title">Baza pitanja</div>
+      <div class="login-sub">422 pitanja sa objašnjenjima<br>Vežba i simulacija ispita</div>
+      <label class="login-label">Lozinka</label>
+      <input class="login-input" id="pw-input" type="password" placeholder="• • • • • • • •" maxlength="12" autocomplete="off">
+      <button class="login-btn" onclick="tryLogin()">Uđi →</button>
+      <div class="login-err" id="pw-err">❌ Pogrešna lozinka.</div>
+    </div>
+  </div>
+  <div class="login-wrap" id="locked-wrap" style="display:none">
+    <div class="locked-card">
+      <div class="locked-icon">🔒</div>
+      <div class="locked-title">Pristup istekao</div>
+      <div class="locked-sub">Kontaktirajte organizatora za obnovu pristupa.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home-screen" class="screen">
+  <div class="home-top">
+    <h1>CPC Baza pitanja</h1>
+    <p>422_PITANJA · KAT_D · NASUMIČNO</p>
+  </div>
+  <div class="home-body">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num">422</div><div class="stat-lbl">Ukupno pitanja</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-done">0</div><div class="stat-lbl">Odrađeno</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-pct">—</div><div class="stat-lbl">Uspešnost</div></div>
+    </div>
+
+    <div class="mode-card" onclick="startVezba()">
+      <div class="mc-icon" style="background:#dbeafe">📚</div>
+      <div class="mc-text">
+        <h3>Vežba — sva pitanja</h3>
+        <p>Nasumičan redosled · odmah vidiš tačan odgovor · bez vremenskog ograničenja</p>
+      </div>
+      <div class="mc-badge">422 pit.</div>
+    </div>
+
+    <div class="mode-card" onclick="startTest()">
+      <div class="mc-icon" style="background:#dcfce7">📝</div>
+      <div class="mc-text">
+        <h3>Simulacija ispita</h3>
+        <p>30 nasumičnih pitanja · prolaznost 75% · rezultat na kraju</p>
+      </div>
+      <div class="mc-badge">30 pit.</div>
+    </div>
+
+    <div class="mode-card" onclick="startGreske()">
+      <div class="mc-icon" style="background:#fef3c7">🔁</div>
+      <div class="mc-text">
+        <h3>Ponovi greške</h3>
+        <p>Samo pitanja na kojima si grešio/la u ovoj sesiji</p>
+      </div>
+      <div class="mc-badge" id="greske-badge">0 pit.</div>
+    </div>
+  </div>
+  <div class="footer">CPC_OBUKA © 2026</div>
+</div>
+
+<!-- VEŽBA -->
+<div id="vezba-screen" class="screen">
+  <div class="sec-header">
+    <button class="back-btn" onclick="confirmBack('home-screen')">←</button>
+    <div class="sec-title">📚 VEŽBA</div>
+    <div class="streak" id="vezba-streak">🔥 0</div>
+  </div>
+  <div class="sec-body" id="vezba-body"></div>
+</div>
+
+<!-- TEST -->
+<div id="test-screen" class="screen">
+  <div class="sec-header">
+    <button class="back-btn" onclick="confirmBack('home-screen')">←</button>
+    <div class="sec-title">📝 SIMULACIJA ISPITA</div>
+  </div>
+  <div class="sec-body" id="test-body"></div>
+</div>
+
+<!-- REZULTAT TESTA -->
+<div id="result-screen" class="screen">
+  <div class="sec-header">
+    <button class="back-btn" onclick="show('home-screen')">←</button>
+    <div class="sec-title">📊 REZULTAT</div>
+  </div>
+  <div class="sec-body" id="result-body"></div>
+</div>
+
+</div>
+
+<script>
+// ===== AUTH =====
+const PASS='RELI0626P';
+const EXP=new Date('2026-07-01');
+
+window.addEventListener('DOMContentLoaded',function(){
+  if(new Date()>=EXP){
+    document.getElementById('main-login').style.display='none';
+    document.getElementById('locked-wrap').style.display='flex';
+  }
+  document.getElementById('pw-input').addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
+  updateHomeStats();
+});
+
+function tryLogin(){
+  const v=document.getElementById('pw-input').value.trim().toUpperCase();
+  if(v===PASS){show('home-screen');}
+  else{
+    const err=document.getElementById('pw-err');
+    err.classList.add('show');
+    document.getElementById('pw-input').value='';
+    setTimeout(()=>err.classList.remove('show'),3500);
+  }
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function confirmBack(dest){
+  if(confirm('Napustiti? Napredak će biti izgubljen.'))show(dest);
+}
+
+// ===== STATISTIKA =====
+let sessionDone=0, sessionCorrect=0, greske=[];
+
+function updateHomeStats(){
+  document.getElementById('stat-done').textContent=sessionDone;
+  document.getElementById('stat-pct').textContent=sessionDone>0?Math.round(sessionCorrect/sessionDone*100)+'%':'—';
+  document.getElementById('greske-badge').textContent=greske.length+' pit.';
+}
+
+// ===== BAZA =====
+const BAZA = [
+  {q:'Koliki je rok važenja kvalifikacione kartice vozača?',o:['1 godina', '3 godine', '5 godina', 'nema rok važenja'],c:2},
+  {q:'Koliko je traje obuka kojom se stiče periodični Sertifikat profesionalne kompetencije CPC&quot;?',o:['15 časova', '35 časova', '70 časova', '140 časova'],c:1},
+  {q:'Gde se može upisati kôd 95&quot; izdat u Srbiji?',o:['u vozačku dozvolu izdatu u zemljama EU', 'u vozačku dozvolu izdatu u bilo kojoj zemlji', 'u vozačku dozvolu izdatu u Srbiji', 'ne može se upisati'],c:2},
+  {q:'Da li je profesionalni vozač u obavezi da svaki put kada upravlja vozilom C&quot; ili D&quot; kategorije ima kod sebe kvalifikacionu karticu vozača?',o:['da', 'samo kada upravlja vozilom u međunarodnom transportu', 'samo kada upravlja vozilom u nacionalnom transportu', 'ne'],c:0},
+  {q:'Koja su lica oslobođena pohađanja osnovne obuke i polaganja stručnog ispita za početni CPC sertifikat za prevoz tereta?',o:['kandidati koji su završili srednju trogodišnju školu', 'kandidati koji imaju minimalno treći stepen stručne spreme mašinske ili saobraćajne struke', 'kandidati koji su završili (redovno ili vanredno) srednju trogodišnju školu za vozača motornih vozila', 'kandidati koji su završili (redovno) srednju trogodišnju školu za vozača motornih vozila'],c:3},
+  {q:'Koliko postoji vrsta sertifikata o stručnoj kompetentnosti vozača, kojim se potvrđuje početna obuka?',o:['jedan', 'dva', 'tri', 'četiri'],c:1},
+  {q:'Kada se vrši zamena kvalifikacione kartice? (zaokružiti netačan odgovor)',o:['kada je izgubljena, ukradena, oštećena ili uništena', 'kada se dopunjuje drugim kategorijama', 'u slučaju nemogućnosti očitavanja podataka', 'kada se menja vozačka dozvola'],c:2},
+  {q:'Na osnovu čega nadležni organi izdaju vozaču kvalifikacionu karticu? (zaokružiti netačan odgovor)',o:['na osnovu zahteva vozača', 'na osnovu posedovanja kartice vozača', 'na osnovu zahteva kontrolnog organa', 'na osnovu zahteva nadležne zdravstvene ustanove'],c:1},
+  {q:'Koliki je rok važenja početnog sertifikata?',o:['3 godine', '5 godina', '10 godina', 'neograničen'],c:3},
+  {q:'Koliko seminara unapređenja znanjavozač može da pohađa u toku jedne godine?',o:['1 seminar', '2 seminara bez obzira da li imaju različite planove i programe rada', '2 seminara sa različitim planovima i programima rada', 'ne postoje ograničenja'],c:2},
+  {q:'Koje je najznačajnije svojstvo dizel goriva?',o:['viskozitet', 'oktanski broj', 'cetanski broj', 'temperatura tečenja'],c:2},
+  {q:'Od čega ne zavisi prosečna potrošnja goriva?',o:['pređenog puta', 'kvaliteta rada vozača', 'kvaliteta goriva', 'ispravnosti vozila'],c:0},
+  {q:'Koje performanse (karakteristike) vozila utiču na potrošnju goriva?',o:['sopstvena masa', 'nosivost', 'aerodinamičnost', 'sve od navedenog'],c:3},
+  {q:'Imaju li nadmorska visina i atmosferski pritisak uticaj na potrošnju goriva?',o:['samo kod teretnih vozila i autobusa', 'samo kod putničkih vozila', 'da', 'ne'],c:2},
+  {q:'Na koji način pritisak vazduha u pneumaticima utiče na potrošnju goriva?',o:['nema uticaja na potrošnju goriva', 'smanjuje potrošnju goriva', 'povećava potrošnju goriva', 'zavisno od stanja puta može da poveća, ali i da smanji potrošnju goriva'],c:1},
+  {q:'Pored upravljanja vozilom koje još obaveze imaju vozači tokom izvršenja obaveze prevoza?',o:['predstavljanje preduzeća', 'uticaj na marketing preduzeća', 'prihvatanje ponude i realizacija transportne usluge', 'sve od navedenog'],c:3},
+  {q:'Koje aktivnosti vozač ne treba da obavi pre polaska na put?',o:['sprovođenje lekarskog pregleda', 'planiranje putovanja', 'lična priprema', 'priprema vozila za putovanje'],c:0},
+  {q:'Na kojim mestima se može vršiti prijem putnika?',o:['na parkinzima autobuskih stanica', 'na autobuskim stajalištima, na peronima autobuskih stanica, ili mestima predviđenim za postavljanje autobusa', 'na bilo kojem mestu na kojem se uoči da je potrebno zaustaviti vozilo i ukrcati putnike', 'ništa od navedenog'],c:1},
+  {q:'Koje su obaveze vozača prilikom izvršenja prevoza?',o:['nastavi vožnju bez zaustavljanja na stajalištu u slučaju popunjenosti vozila', 'vreme vožnje prilagodi redu vožnje bez obzira na vreme upravljanja vozilom', 'obavezno zaustavi vozilo na svim stajalištima bez obzira na popunjenost vozila', 'koristi najkraće moguće rute'],c:2},
+  {q:'Koje su dužnosti vozača prilikom upravljanja vozilom?',o:['da koristi mobilni telefon u slučaju da ga poziva pretpostavljeni', 'da završi započetu vožnju bez obzira na signale koje daju indikatori ispravnosti uređaja motora i autobusa', 'poštuje ograničenje brzine samo ako vozi u naseljenom mestu', 'vozilo ne pokreće i zaustavlja naglo, bez opravdanog razloga'],c:3},
+  {q:'Šta vozač radi po završetku rada, u garaži ili na mestu predviđenom za parkiranje ?',o:['vrši vizuelni pregled vozila nakon upotrebe da bi uočio eventualne nepravilnosti i neispravnosti koji se mogu videti golim okom', 'otklanja ili prijavljuje eventualne neispravnosti i nedostatke licima zaduženim za tehničko održavanje vozila', 'vrši popunu vozila gorivom i čišćenje vozila', 'sve navedeno'],c:3},
+  {q:'Kada vozilo troši najmanje goriva?',o:['kada dostigne određenu brzinu, pa skloni nogu sa papučice gasa', 'kada se kreće ravnomerno', 'kada se putnici ravnomerno raspodele', 'sve navedeno'],c:1},
+  {q:'Koje radnje treba da preduzme vozač kada se sa vozilom kreće nizbrdicom?',o:['da izvrši pravilan izbor nižeg stepena prenosa', 'da nastavi vožnju nepromenjenom brzinom', 'da izvrši preticanje svih vozila koja se kreću sporije', 'da nastavi vožnju koristeći zaustavnu traku'],c:0},
+  {q:'Koji su principi defanzivne i EKO vožnje?',o:['predviđanje načina ponašanja drugih učesnika u saobraćaju', 'vožnja na bezbednom odstojanju i rastojanju', 'priprema vozila i vozača za vožnju', 'sve navedeno'],c:3},
+  {q:'Šta se postiže povećanjem brzine kretanja?',o:['postiže se ekonomičnija vožnja', 'povećanje koristi od sistema sigurnosne zaštite', 'povećava se zaustavni put vozila', 'smanjuju se posledice saobraćajnih nezgoda'],c:2},
+  {q:'Šta utiče na smanjenje rizika u drumskom saobraćaju?',o:['polazak iz mesta sa velikim ubrzanjem', 'nepridržavanje bezbednog odstojanja', 'prilagođavanje brzine uslovima saobraćaja, stanju kolovoza i vremenskim prilikama', 'zaustavljanje kada god uslovi puta dozvole'],c:2},
+  {q:'Koja je uobičajena vrsta komunikacije između vozača i putnika?',o:['jasna komunikacija', 'verbalna komunikacija', 'ciljana komunikacija', 'sve od navedenog'],c:1},
+  {q:'Kakva komunikacija treba da bude?',o:['tačna', 'jasna', 'uljudna', 'sve od navedenog'],c:3},
+  {q:'O čemu, između ostalog, u odnosu prema puticima, vozač treba da vodi računa?',o:['da putnici ne ulaze u autobus u pijanom stanju', 'da putnici ne ulaze u autobus sa uredno kupljenom voznom kartom', 'da putnici ne ulaze u autobus na stanicama i stajalištima upisanim u red vožnje', 'ništa od navedenog'],c:0},
+  {q:'Koja je obaveza vozača, prilikom ulaska i izlaska putnika iz vozila, pre pokretanja vozila?',o:['da se uveri da su svi putnici bezbedno ušli u vozilo i da se uveri da su sva vrata zatvorena pre pokretanja vozila', 'da se uveri da su svi putnici u vozilu stariji od 18. godina i da imaju lične karte', 'da se uveri da je red vožnje na liniji na kojoj obavlja prevoz overen i registrovan kod nadležnog organa', 'da proveri pritisak u svim pneumaticima na vozilu'],c:0},
+  {q:'Da li je dozvoljeno da putnik ometa vozača razgovarajući sa njim ?',o:['dozvoljen je', 'dozvoljen je samo ako razgovara sa poznatom osobom', 'dozvoljen je ako nema uticaj na bezbedno upravljanje vozilom', 'nije dozvoljen'],c:3},
+  {q:'Na koji način je vozač dužan da upravlja vozilom?',o:['samo na bezbedan način', 'samo na propisan način', 'na bezbedan, propisan i savestan način', 'samo na savestan način'],c:2},
+  {q:'Koje su obaveze vozača po završetku vožnje?',o:['da zaustavljanje vozila i iskrcavanje putnika i ptrljaga izvrši što pre kako bi oslobodio vozilo za narednu vožnju;', 'da zaustavljanje vozila i iskrcavanje putnika i prtljaga izvrši na mestu koje odabere putnik;', 'da zaustavljanje vozila i iskrcavanje putnika izvrši na bilo kom parking prostoru;', 'da zaustavljanje vozila, iskrcavanje putnika i predaju prtljaga izvrši na bezbedan način i u skladu sa važećim propisima'],c:3},
+  {q:'Koji je najznačajniji međunarodni dokument (sporazum) kojim se reguliše oblasti vremena upravljanja i odmora vozača i korišćenja tahografa?',o:['ADR sporazum', 'AETR sporazum', 'CMR konvencija', 'TIR konvencija'],c:1},
+  {q:'Kojim nacionalnim dokumentom (propisom) je regulisana oblast vremena upravljanja i odmora vozača i korišćenja tahografa?',o:['zakon o radnom vremenu posade vozila u drumskom prevozu i tahografima', 'zakon o bezbednosti saobraćaja', 'zakon o upotrebi tahografa i radu vozača', 'zakon o evidenciji radnog vremena članova posade vozila'],c:0},
+  {q:'Za koja vozila postoji obaveza ugradnje tahografa?',o:['na svim teretnim vozilima ili skupovima vozila čija najveća dozvoljena masa prelazi 2,5t', 'vozilima konstruisanim da prevoze više od devet osoba uključujući i vozača (8+1)', 'samo na teretnim vozilima ili autobusima čija najveća dozvoljena masa prelazi 7,5t', 'samo u autobusima koji prevoze više od petnaest osoba uključujući i vozača (14+1)'],c:1},
+  {q:'Na koja vozila se ne primenjuje Zakon o radnom vremenu posade vozila u drumskom transportu i tahografima?',o:['na vozila čija najveća dozvoljena masa ne prelazi 7,5 t, koja se koriste za prevoz tereta nekomercijalni prevoz tereta', 'na vozilia čija najveća dozvoljena masa ne prelazi 7,5 t, koja se koriste za javni prevoz tereta', 'na vozilia čija najveća konstruktivna brzina ne prelazi 60 km/h', 'na vozila koja obavljaju javni linijski prevoz putnika na linijama dužine preko 50 km'],c:0},
+  {q:'Do kog roka se najkasnije unose podaci u evidenciju radnog vremena člana posade vozila?',o:['poslednjeg dana tekućeg meseca', 'do 1.-og u mesecu za tekući mesec', 'do 1.-og u mesecu za prethodni mesec', 'do 5.-og u mesecu za prethodni mesec'],c:3},
+  {q:'Da li vozač ima pravo da nakon otpočinjanja prevoza popuni Potvrdu o aktivnostima?',o:['da', 'samo ako se nalazi na putu duže od tri dana', 'samo ako upravlja vozilom van matične zemlje duže od tri dana', 'ne'],c:3},
+  {q:'U koliko se primeraka štampa potvrda o aktivnosti vozača?',o:['jedan', 'dva', 'tri', 'četiri'],c:1},
+  {q:'Koliko vremena je prevoznik u obavezi da čuva podatke preuzete sa digitalnih tahografa?',o:['šest meseci', 'godinu dana', 'dve godine', 'najmanje tri godine'],c:2},
+  {q:'Šta spada u radno vreme vozača?',o:['vreme upravljanja vozilom', 'vreme upravljanja vozilom i ostalo radno vreme', 'vreme upravljanja vozilom, ostalo radno vreme i vreme raspoloživosti', 'vreme upravljanja vozilom, ostalo radno vreme, vreme raspoloživosti i pauze'],c:1},
+  {q:'Koliko najduže može da traje dnevno radno vreme člana posade uključujući i prekovremeni rad u periodu od 24 časa?',o:['12 časova', '13 časova', '14 časova', '15 časova'],c:2},
+  {q:'Koliko najduže može da traje nedeljno radno vreme člana posade uključujući i prekovremeni rad?',o:['45 časova', '48 časova', '56 časova', '60 časova'],c:3},
+  {q:'U kojem vremenskom periodu se rad vozača smatra noćnim radom?',o:['od 22.00 do 06.00 časova', 'od 22.00 do 04.00 časa', 'od 00.00 do 04.00 časova', 'od 00.00 do 06.00 časova'],c:2},
+  {q:'Koliko maksimalno može da traje radno vreme vozača u toku 24 časa ako član posade obavlja noćni rad&quot;?',o:['8 časova', '10 časova', '12 časova', '14 časova'],c:1},
+  {q:'Koliko iznosi maksimalno vreme neprekidne vožnje pre pauze?',o:['4 sata', '4 sata i 30 minuta', '5 sati', 'zavisi od vremenskih prilika i stanja na putu'],c:1},
+  {q:'Koliko najviše časova, u toku dana, profesionalni vozač može da upravlja vozilom?',o:['8 časova i 2 puta nedeljno po 9 časova', '8 časova i 2 puta nedeljno po 10 časova', '9 časova i 2 puta nedeljno po 10 časova', '9 časova i 3 puta nedeljno po 10 časova'],c:2},
+  {q:'Koliko najviše časova, u toku dana,        profesionalni vozač može da upravlja vozilom u javnom linijskog gradskom i prigradskom prevozu putnika, odnosno na međumesnim linijama do 50 km?',o:['7 časova', '8 časova', '9 časova', '10 časova'],c:1},
+  {q:'Koliko najduže može da traje vreme vožnje u toku nedelje?',o:['40 časova', '48 časova', '56 časova', '60 časova'],c:2},
+  {q:'Koliko najduže može da traje vreme vožnje u toku dve nedelje?',o:['80 časova', '90 časova', '96 časova', '112 časova'],c:1},
+  {q:'Šta ne spada u vreme raspoloživosti?',o:['čekanje na granici', 'vreme koje vozač provede u vozilu u pokretu kao član posade, kada ne upravlja vozilom', 'popunjavanje dokumentacije', 'prevoz vozila trajektom, ako nije obezbeđen ležaj u kabini trajekta'],c:2},
+  {q:'Posle kog vremena neprekidnog upravljanja vozilom se moraju praviti pauze i koliko je njihovo trajanje?',o:['nakon 4 časa upravljanja minimum 30 minuta', 'nakon 4 časa upravljanja - minimum 45 minuta', 'nakon 4 časa i 30 minuta upravljanja - minimum 15 minuta, a nakon novog perioda upravljanja još 30 minuta', 'nakon 4 časa i 30 minuta upravljanja - minimum 45 minuta'],c:3},
+  {q:'Koliko minimalno sati odmora u toku 24 časa mora imati vozač ako samostalno upravlja vozilom?',o:['minimalno 14 časova odmora', 'minimalno 10 časova odmora', 'minimalno 9 časova odmora', 'minimalno 8 časova odmora'],c:2},
+  {q:'Koliko minimalno časova treba da iznosi dnevni odmor vozača u udvojenoj posadi u periodu od 30 časova?',o:['najmanje 8 časova', 'najmanje 9 časova', 'najmanje 10 časova', 'najmanje 11 časova'],c:1},
+  {q:'Koliko minimalno časova treba da traje puni nedeljni odmor vozača?',o:['24 časa', '36 časova', '45 časova', '56 časova'],c:2},
+  {q:'Koliko minimalno časova treba da traje skraćeni nedeljni odmor vozača?',o:['12 časova', '18 časova', '21 čas', '24 časa'],c:3},
+  {q:'Koliki je najkraći vremenski period koji se prihvata kao pauza?',o:['10 minuta', '15 minuta', '30 minuta', '45 minuta'],c:1},
+  {q:'Na koji se način može zameniti pauza u trajanju od 45 minuta?',o:['3 pauze od po 15 minuta', 'prva pauza ne kraća od 15 minuta i druga pauza ne kraća od 30 minuta', 'prva pauza od 30 minuta i druga pauza od 15 minuta', 'više pauza čiji je zbir veći od 45 minuta'],c:1},
+  {q:'Koliki je najkraći vremenski period koji se prihvata kao pauza        u javnom linijskom gradskom i prigradskom prevozu putnika na linijama dužine do 50 km?',o:['najmanje 5 minuta na svakom polaznom stajalištu', 'najmanje 10 minuta na svakom polaznom stajalištu', 'najmanje 15 minuta na svakom polaznom stajalištu', 'najmanje 30 minuta na svakom polaznom stajalištu'],c:0},
+  {q:'Posle koliko časova neprekidnog rada vozač mora da napravi pauzu (odmor) od najmanje 30 minuta?',o:['nakon 4 sata i 30 minuta', 'nakon 5 sati', 'nakon 6 sati', 'nakon 8 sati'],c:2},
+  {q:'Koliko puta u toku nedelje vozač može da koristi skraćeni dnevni odmor?',o:['dva puta nedeljno', 'tri puta nedeljno', 'četiri puta nedeljno', 'ne postoji ograničenje'],c:1},
+  {q:'Koju aktivnost vozača predstavlja simbol ?',o:['upravljanje vozilom', 'ostali poslovi', 'raspoloživost', 'pauza'],c:1},
+  {q:'Koju aktivnost vozača predstavlja simbol ?',o:['upravljanje vozilom', 'ostali poslovi', 'raspoloživost', 'pauza'],c:3},
+  {q:'Koju aktivnost vozača predstavlja simbol ?',o:['upravljanje vozilom', 'ostali poslovi', 'raspoloživost', 'pauza'],c:2},
+  {q:'Koliko iznosi najviše dozvoljeno prosečno vreme rada u četiri uzastopna meseca (17 ili 18nedelj',o:['? a -  40 sati', '48 sati', '56 sati', '60 sati'],c:1},
+  {q:'Nakon kog perioda se moraju preuzeti podaci sa digitalnog tahografa?',o:['28 dana', '45 dana', '60 dana', '90 dana'],c:3},
+  {q:'Nakon kog perioda se najkasnije moraju preuzeti podaci sa kartice vozača?',o:['21 dan', '28 dana', '45 dana', '60 dana'],c:1},
+  {q:'U kom roku je vozač dužan da nadležnim organima podnese zahtev za izdavanje nove kartice u slučaju gubitka ili krađe?',o:['3 dana', '7 dana', '10 dana', '15 dana'],c:1},
+  {q:'U kom roku vozač može da upravlja vozilom bez kartice ako ima dokaz da je podneo zahtev za izdavanje nove kartice?',o:['3 dana', '7 dana', '15 dana', '30 dana'],c:2},
+  {q:'Za koji period vozač mora da poseduje podatke o aktivnostima u linijskom gradsko - prigradskom i međumesnom prevozu do 50 km?',o:['samo za tekući dan', '7 dana', '14 dana', '28 dana'],c:0},
+  {q:'Šta od navedenog ne spada u obaveze vozača?',o:['čitko popuni tahografski listić svim propisanim podacima', 'unese podatke o aktivnostima vozača od poslednjeg korišćenja kartice vozača', 'koristi taho listić samo u vremenskom periodu za koji je namenjen', 'da dve godine čuva taho listiće i potvrde vozača'],c:3},
+  {q:'Taho listić se može koristiti u vremenskom periodu od najviše?',o:['12 časova', '18 časova', '24 časa', 'period nije definisan i zavisi od trenutka ubacivanja taho listića'],c:2},
+  {q:'Koji se podaci ne moraju nalaziti na taho listiću?',o:['gornja granica mernog opsega koja je izražena u km/h', 'oznaka tipa tahografa', 'oznaka odobrenja tipa tahografskog listića', 'oznaka radionice za baždarenje tahografa'],c:3},
+  {q:'Na koji način se postavljaju taho listići vozača i suvozača kod automatskog (modularnog) tahografa?',o:['prvo se ubacuje listić vozača licem na gore, a zatim suvozača licem na gore', 'prvo se ubacuje listić suvozača licem na gore, a zatim vozača licem na gore', 'prvo se ubacuje listić vozača licem na dole, a zatim suvozača licem na gore', 'prvo se ubacuje listić suvozača licem na dole, a zatim vozača licem na gore'],c:1},
+  {q:'Koje podatke vozač ne treba da upiše na prednju stranu taho listića?',o:['mesto početka i završetka rada', 'registarski broj vučnog vozila', 'registarski broj priključnog vozila', 'stanje na odometru'],c:2},
+  {q:'U kojim slučajevima nije potrebno popunjavati zadnju stranu tahografskog listića?',o:['zaključivanja prethodnog radnog dana', 'prilikom zamene vozača', 'otvaranje novog radnog dana', 'prevremenog vađenja tahografskog listića'],c:1},
+  {q:'Može li vozač na taho listić unositi podatke za dane kada ne upravlja vozilom (osim ako za navedeni period ne postoji potvrd',o:['? a -  može', 'ako period nije duži od 24 časa', 'ako period nije duži od 72 sata', 'ne može'],c:0},
+  {q:'Koje podatke vozač ne treba da upisuje na zadnju stranu taho listića prilikom zamene vozila?',o:['vreme preuzimanja vozila', 'datum preuzimanja vozila', 'registarski broj vozila', 'pređeni put'],c:1},
+  {q:'Koje aktivnosti je vozač dužan da ručno beleži u slučaju otkaza tahografa?',o:['brzinu, pređeni put i vreme', 'pređeni put, vreme pauza, brzinu', 'vreme upravljanja vozilom, pauze i odmore, ostale poslove i raspoloživost', 'vreme upravljanja vozilom, pauze i odmore, ostale poslove i brzinu'],c:2},
+  {q:'Koji podaci se automatski beleže na listiću koji je umetnut u analogni tahograf?',o:['brzina, aktivnosti vozača, registarski broj vozila', 'brzina, otvaranje tahografa, aktivnosti vozača, pređeni put', 'aktivnosti vozača, otvaranje tahografa, naziv prevoznika', 'brzina, potrošnja goriva, aktivnosti vozača, otvaranje tahografa'],c:1},
+  {q:'Na koju aktivnost treba postaviti preklopnik prilikom čekanja na utovar/istovar?',o:['čekić', 'kocka', 'stolica', 'točak'],c:1},
+  {q:'Koliko vrsta memorijskih kartica postoji?',o:['jedna', 'dve', 'tri', 'četiri'],c:3},
+  {q:'Za rad sa digitalnim tahografom vozači koriste?',o:['CPC karticu', 'karticu vozača', 'karticu tahografa', 'karticu vozila'],c:1},
+  {q:'Koliki je rok važenja memorijske kartice vozača?',o:['2 godine', '3 godine', '5 godina', '10 godina'],c:2},
+  {q:'Pored informacija koje beleži analogni tahograf, šta još beleži digatalni tahograf? (izbaciti nepotrebno)',o:['kalibraciju i popravke', 'identitet prevoznika', 'događaje i greške', 'podatke o kontroli'],c:1},
+  {q:'Koja od navedenih karakteristika nije karakteristična za digitalne tahografe prve generacije?',o:['evidentiranje i snimanje aktivnosti vozača', 'omogućava preuzimanje podataka', 'ručni unos nekih od potrebnih podataka', 'daljinsko praćenje eksploatacije vozila'],c:3},
+  {q:'Sa kojim vremenom mora da se poklapa vreme na digitalnom tahografu?',o:['lokalnim vremenom', 'univerzalnim vremenom UTC', 'srednje evropskim vremenom', 'važećim vremenom na teritoriji EU'],c:1},
+  {q:'Koje vreme vozač može podešavati na digitalnom tahografu?',o:['lokalno', 'univerzalno', 'srednje evropsko', 'važeće vreme na teritoriji EU'],c:0},
+  {q:'Koje značenje ima piktogram (simbol) ?&quot; prilikom ručnog unosa podataka u digitalni tahograf?',o:['slobodna aktivnost', 'rad na većem broju vozila', 'neodređena aktivnost', 'ništa od navedenog'],c:2},
+  {q:'Prilikom ručnog unosa podataka u digitalni tahograf, kada se koristi piktogram (simbol) ?&quot;?',o:['prilikom prelaska iz jednog u drugo vozilo', 'prilikom neispravnosti tahografa', 'u slučaju posedovanja potvrde o odsustvu vozača (bolovanje, godišnji odmor) ili ako poseduje dokaz da je upravljao drugim vozilom koje podleže AETR-u', 'ništa od navedenog'],c:2},
+  {q:'Da li je vozač u obavezi da svakodnevno štampa dnevne izveštaje sa digitalnog tahografa?',o:['da', 'ne, osim u propisanim slučajevima (problemi sa karticom ili tahografom)', 'samo na zahtev nadležnih institucija', 'ništa od navedenog'],c:1},
+  {q:'Koje je značenje kombinacije piktograma  ?',o:['štampani izveštaj dnevnih aktivnosti (dnevni 24h ispis) sa vozila/tahografa', 'štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa kartice vozača', 'štampani izveštaj o događajima i greškama na kartici vozača', 'štampani izveštaj o događajima i greškama na vozilu/tahografu'],c:1},
+  {q:'Koje je značenje kombinacije piktograma ?',o:['štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa vozila/tahografa', 'štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa kartice vozača', 'štampani izveštaj o događajima i greškama na kartici vozača', 'štampani izveštaj o događajima i greškama na vozilu/tahografu'],c:3},
+  {q:'Koje je značenje kombinacije piktograma',o:['štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa vozila/tahografa', 'štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa kartice vozača', 'štampani izveštaj o događajima i greškama na kartici vozača', 'štampani izveštaj o događajima i greškama na vozilu/tahografu'],c:0},
+  {q:'Koje je značenje kombinacije piktograma ?',o:['štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa vozila/tahografa', 'štampani izveštaj dnevnih aktivnosti (dnevni ispis) sa kartice vozača', 'štampani izveštaj o događajima i greškama na kartici vozača', 'štampani izveštaj o događajima i greškama na vozilu/tahografu'],c:2},
+  {q:'Koje je značenje piktograma !&quot; koji se pojavljuje na displeju digitalnog tahografa?',o:['smetnja - greška', 'događaj', 'upozorenje za vreme vožnje', 'poruka za rukovanje'],c:1},
+  {q:'Koje je značenje piktograma X&quot; koji se pojavljuje na displeju digitalnog tahografa?',o:['smetnja (greška-', 'događaj', 'upozorenje za vreme vožnje', 'poruka za rukovanje'],c:0},
+  {q:'Koje je značenje piktograma &quot; koji se pojavljuje na displeju digitalnog tahografa?',o:['smetnja (greška -', 'događaj', 'upozorenje za vreme vožnje', 'poruka za rukovanje'],c:2},
+  {q:'Koje je značenje piktograma ?&quot; koji se pojavljuje na displeju digitalnog tahografa?',o:['smetnja (greška-', 'događaj', 'upozorenje za vreme vožnje', 'poruka za rukovanje'],c:3},
+  {q:'Na koji način se može podeliti javni drumski prevoz (transport) prema području opsluge?',o:['specijalni transport i vanredni transport', 'gradski i seoski drumski transport', 'drumski transport tereta i drumski transport poljopriverdnih proizvoda', 'domaći drumski prevoz (transport) i međunarodni drumski prevoz (transport)'],c:3},
+  {q:'Na koji način se može podeliti domaći javni drumski prevoz (transport)?',o:['autobuski, železnički, rečni i jezerski;', 'linijski, međunarodni, gradski i za sopstvene potrebe;', 'linijski, poseban linijski, vanlinijski, taksi i limo servis;', 'logistički, unutrašnji i spoljašnji transport'],c:2},
+  {q:'Koliko vrsta licenci je propisano za obavljanje javnog drumskog prevoza putnika?',o:['1 vrsta', '2 vrste', '3 vrste', '4 vrste'],c:3},
+  {q:'Da li vozač kome nisu prestale pravne posledice osude za krivična dela protiv bezbednosti javnog saobraćaja može obavljati javni drumski prevoz putnika?',o:['može obavljati javni drumski prevoz putnika;', 'ne može obavljati javni drumski prevoz putnika;', 'može obavljati javni prevoz putika samo u domaćem saobraćaju;', 'može obavljati javni drumski prevoz putnika samo u gradsko-prigradskom saobraćaju'],c:1},
+  {q:'Šta predstavlja izvod licence?',o:['dokument koji glasi na vozača i daje mu pravo upravljanja vozilom', 'dokument koji je izdat za vozilo i mora se nalaziti u vozilu tokom obavljanja javnog prevoza', 'dokument koji poslodavac čuva u sedištu firme, kako bi dokazao posedovanje licence', 'dokument koji nije bitan za obavljanje javnog drumskog prevoza putnika'],c:1},
+  {q:'Koji dokument mora da poseduje vozač kao dokaz o radnom angažovanju, prilikom obavljanja javnog drumskog prevoza putnika?',o:['vozač mora da poseduje rešenje o poslednjem godišnjem odmoru', 'vozač mora da poseduje izjavu poslodavca o radnom angažovanju', 'vozač mora da poseduje radnu knjižicu', 'vozač mora da poseduje ugovor o radu ili drugi dokument o radnom angažovanju kod poslodavca'],c:3},
+  {q:'Da li vozač koji obavlja taksi prevoz, a poseduje CPC ili Kod 95 ispunjava uslov stručne spreme i potrebnog radnog iskustva?',o:['ne smatra se da ispunjava uslov stručne spreme i potrebnog radnog iskustva', 'smatra se da ispunjava uslov stručne spreme i potrebnog radnog iskustva', 'smatra se da ispunjav uslov stručne spreme ali ne i potrebnog radnog iskustva', 'smatra se da ispunjava uslov radnog iskustva ali ne i potreben stručne spreme'],c:1},
+  {q:'Između koga se zaključuje ugovor o prevozu putnika?',o:['između prevoznika i vozača;', 'između putnika i službe održavanja vozila;', 'između naručioca prevoza i putnika;', 'između prevozioca i putnika ili između prevozioca ili naručioca prevoza'],c:3},
+  {q:'Kako će postupiti vozač u slučaju ulaska u autobus lica za koje se može opravdano pretpostaviti da će onemogućiti prevozioca u izvršenju njegovih obaveza?',o:['prevozilac je dužan da ga primi na prevoz', 'prevozilac je dužan da ga primi na prevoz samo ako je lice starije od 18 godina', 'prevozilac nije dužan da ga primi na prevoz', 'prevozilac je dužan da prevoz ovog lica ugovori sa drugim prevoznikom'],c:2},
+  {q:'Šta predstavlja vozna karta?',o:['ugovor o prevozu putnika', 'ugovor o prevozu prtljaga', 'nije ugovor o prevozu putnika ni prevozu prtljaga', 'predugovor koji nije obavezujući ni za putnika ni za prevoznika'],c:0},
+  {q:'Šta vozna karta u međumesnom prevozu putnika treba da sadrži?',o:['ime i prezime putnika, relaciju obavljanja prevoza i tačno vreme dolaska', 'naziv prevoznika, datum polaska, vreme dolaska i cenu prevoza', 'ime i prezime putnika, datum rezervacije i broj sedišta', 'vrstu prevoza, način obavljanja prevoza i registarski broj autobusa'],c:1},
+  {q:'Kada se primenjuje CVR konvencija?',o:['kada se prevoz obavlja u bilo kojoj državi eu;', 'kada se prevoz vrši na teritoriji najmanje dve zemlje i polazište ili odredište ili i jedno i drugo se nalazi na teritoriji jedne od država ugovornica;', 'kada se prevoz obavlja između dve države koje pripadaju teritoriji na kojoj se primenjuje šengenski sporazum;', 'kada se prevoz obavlja između bilo koje dve države u evropi, ako je srbija država tranzita'],c:1},
+  {q:'U kom slučaju se prema Uredbi EU o pravima putnika u autobuskom prevozu,        ugovorni uslovi i tarife koje primenjuju prevoznici moraju se nuditi putnicima bez ikakve diskriminacije zasnovane na nacionalnost?',o:['samo prilikom obavljanja linijskog prevoza na linijama dužine veće od 250 km', 'samo prilikom obavljanja linijskog prevoza na linijama koje su kraće od 250 km', 'samo prilikom obavljanja vanlinijskih prevoza', 'prilikom obavljanja svih vrsta javnih prevoza'],c:3},
+  {q:'Prema Uredbi EU o pravima putnika u autobuskom prevozu, prilikom prevoza invalida na linijama dužim od 250 km, šta treba da uradi prevoznik?',o:['ne mora da izvrši obuku vozača koji kontaktiraju sa putnicima sa invaliditetom', 'mora da izvrši obuku vozača koji kontaktiraju sa putnicima sa invaliditetom samo ukoliko osoba sa invaliditetom nema pratioca ili asistenta', 'prevoznik mora da izvrši obuku vozača koji kontaktiraju sa putnicima sa invaliditetom', 'mora da izvrši obuku vozača koji kontaktiraju sa putnicima sa invaliditetom samo ako može da naplati 50% veći iznos vozne karte od putnika sa invaliditetom'],c:2},
+  {q:'Šta ubrajamo u dokumentaciju za vozilo pri obavljanju javnog prevoza putnika?',o:['vozačku dozvolu, cpc karticu i karticu vozača (ukoliko je poseduje)', 'rezevrni točak i pp aparat', 'saobraćajnu dozvolu, izvod licence i registracionu nalepnicu', 'red vožnje ili dozvola za međunarodni linijski prevoz putnika'],c:2},
+  {q:'Šta ubrajamo u dokumentaciju za vozača pri obavljanju javnog prevoza putnika?',o:['vozačku dozvolu, cpc karticu i karticu vozača (ukoliko je poseduje);', 'rezevrni točak i pp aparat;', 'saobraćajnu dozvolu, izvod licence i registracionu nalepnicu', 'red vožnje ili dozvola za međunarodni linijski prevoz putnika;'],c:0},
+  {q:'Koji od dokumenata je obavezan prilikom obavljanja međumesnog linijskog prevoza putnka?',o:['fotokopija reda vožnje overena i potpisana od strane prevoznika', 'ugovor o prevozu prtljaga', 'ugovor o održavanju vozila i potvrda o tehničkoj ispravnosti vozila', 'ugovor o obavljanju vanlinijskog prevoza putnika i spisak putnika'],c:0},
+  {q:'Koja je dokumentacija obavezna prilikom obavljanja vanlinijskog prevoza putnka?',o:['ugovor o prevozu prtljaga i poslovno tehničkoj saradnji', 'ugovor o vanlinijskom prevozu i putni list iz knjige putnih listova', 'vozna karta kao ugovor o prevozu za svakog putnika', 'red vožnje, cenovnik i itinerer'],c:1},
+  {q:'Šta je neophodno uraditi prilikom pripreme vozila za obavljanje organizovanog prevoza dece?',o:['obavezno je označavanje vozila plavim rotacionim ili trepćućim svetlom', 'obavezno je označavanje vozila sa prednje i sa zadnje strane tablom za organizovani prevoz dece', 'obavezno je označavanje vozila crvenim rotacionim ili trepćućim svetlom', 'obavezno je označavanje vozila žutim rotacionim ili trepćućim svetlom'],c:1},
+  {q:'Kada je vozač dužan da postavi vozilo na početnoj stanici prilikom obavljanja domaćeg linijskog prevoza?',o:['u skladu sa svojim mogućnostima', 'najmanje 5 minuta pre polaska', 'neposredno pre polaska', 'najmanje 8 minuta, a najviše 15 minuta pre polaska'],c:3},
+  {q:'Da li je vozač dužan da zaustavi vozilo ako pripadnik saobraćajne policije ili saobraćajne inspekcije istakne znak STOP?',o:['jeste samo prilikom obavljanja domaćeg prevoza', 'jeste samo prilikom obavljanja međunarodnog prevoza', 'nije', 'jeste'],c:3},
+  {q:'Na osnovu čega se obavlja međunarodni javni linijski prevoz putnika?',o:['na osnovu putnog lista i ugovora o poslovno tehničkoj saradnji;', 'na osnovu ugovora o obavljanju vanlinijskog prevoza i dozvole za vanlinijski prevoz;', 'bez propisane dokumentacije, odnosno uvek u režimu bez dozvola;', 'na osnovu dozvole za obavljanje međunarodnog javnog linijskog prevoza sa odgovarajućim prilozima (redom vožnje, cenovnikom i itinererom).'],c:3},
+  {q:'Na osnovu čega se obavlja međunarodni javni vanlinijski prevoz putnika?',o:['na osnovu ugovora o obavljanju vanlinijskog prevoza, odgovarajućeg putnog lista i dozvole, ako je potrebna za državu tranzita ili državu odredišta;', 'na osnovu dozvole za obavljanje javnog linijskog prevoza sa odgovarajućim prilozima (redom vožnje, cenovnikom i itinererom);', 'bez propisane dokumentacije, odnosno uvek u režimu bez dozvola;', 'na osnovu radnog lista i ugovora o poslovno tehničkoj saradnji'],c:0},
+  {q:'Koji se podaci obavezno upisuju u obrazac putnog lista iz Knjige putnih listova?',o:['registarska oznaka autobusa, poslovno ime prevoznika, ime i prezime svih vozača - članova posade i drugi potrebni podaci;', 'broj licence prevoznika, broj izvoda licence za vozilo i broj ugovora o radu za sve vozače -članove posade;', 'broj saobraćajne dozvole vozila, broj vozačke dozvole vozača koji obavlja prevoz i broj motora i broj šasije.', 'upisuju se podaci po slobodnom izboru prevoznika'],c:0},
+  {q:'Koja je obavezna dokumentacija prilikom obavljanja međunarodnog vanlinijskog prevoza putnka?',o:['ugovor o prevozu prtljaga i poslovno tehničkoj saradnji;', 'ugovor o vanlinijskom prevozu i putni list iz knjige putnih listova za međunarodni vanlinijski prevoz putnika;', 'vozna karta kao ugovor o prevozu za svakog putnika;', 'red vožnje, cenovnik i itinerer.'],c:1},
+  {q:'Koje su obaveze vozača prilikom pripreme vozila za obavljanje organizovanog prevoza dece?',o:['obavezno je označavanje vozila plavim rotacionim ili trepćućim svetlom;', 'obavezno je označavanje vozila sa prednje i sa zadnje strane tablom za organizovani prevoz dece;', 'obavezno je označavanje vozila crvenim rotacionim ili trepćućim svetlom;', 'obavezno je označavanje vozila žutim rotacionim ili trepćućim svetlom.'],c:1},
+  {q:'Koja je dokumentacija pored polise osiguranja od autoodgovornosti za vozilo kojim se obavlja međunarodni prevoz potrebna za ulazak u određene države?',o:['uverenje o nekažnjavanju vozača koji obavlja prevoz;', 'lekarsko uverenje za vozača;', 'uverenje o tehničkoj ispravnosti vozila;', 'međunarodna karta za osiguranje automobila (zeleni karton).'],c:3},
+  {q:'Na šta vozač treba da obrati pažnju prilikom ulaska u stranu državu i korišćenja puteva?',o:['obavezu korišćenja parkinga i odmorišta;', 'obavezu korišćenja benzinskih stanica i drugih objekata namenjenih autobusima;', 'mogućnost izbegavanja plaćanja putarine i korišćenje samo puteva bez naplate;', 'obavezu i način plaćanja putarine za vozilo kojim upravlja'],c:3},
+  {q:'Šta spada u obaveznu opremu u vozilima za prevoz lica?',o:['alat potreban za zamenu pneumatika;', 'nasloni za glavu i čiste presvlake za sedišta;', 'komplet za prvu pomoć, pp aparat i sigurnosni trougao;', 'audio-video oprema sa monitorima i zvučnicima'],c:2},
+  {q:'Koja se oprema za pružanje prve pomoći mora nalaziti u autobusima vrste M2 i M3, koji su predviđeni za prevoz više od 22 putnika?',o:['2 komada kompleta za prvu pomoć tipa B;', '2 komada kompleta za prvu pomoć tipa A;', '1 komad kompleta za prvu pomoć tipa B;', '1 komad kompleta za prvu pomoć tipa A'],c:0},
+  {q:'Šta spada u obaveznu zimsku opremu autobusa?',o:['lanci odnosno drugi uređaji za povećanje trakcije, lopata i pneumatici čija dubina gazećeg sloja nije manja od 4 mm;', 'lanci odnosno drugi uređaji za povećanje trakcije, lopata i dubina gazećeg sloja na pneumaticima ne manja od 2 mm;', 'zimski pneumatici na svim točkovima i minimalna dubina gazećeg sloja od 16 mm.', 'lanci odnosno drugi uređaji za povećanje trakcije, zimski pneumatici na svim točkovima i najmanje 2 komada klinastih podmetača'],c:0},
+  {q:'Koju namenu imaj sigurnosni pojasevi u autobusu?',o:['da spreči nagla ubrzanja i ispadanja iz sedišta pri vožnji po neravnom putu, krivinama i putu sa usponima i nagibima;', 'da spreči ispadanje vozača ili putnika iz vozila pri naglim usporenjima i udarima i povređivanje naletom na točak upravljača i druge delove enterijera vozila;', 'da poveća udobnost i komfor tokom vožnje;', 'da spreči plaćanje kazne usled nekorišćenja sigurnosnog pojasa na vozilu.'],c:1},
+  {q:'Koja je namena ABS-a (Sistem protiv blokiranja okretanja točkova pri kočenju)?',o:['da omogući vozaču da pokrene vozilo iz mesta na klizavoj podlozi;', 'da spreči blokiranje točkova i time zadrži upravljivost vozila i skrati zaustavni put u slučaju naglog usporenja;', 'da spreči naglo zaustavljanje i kočenje vozila kako bi se produžio zaustavni put i povećala udobnost usporavanja vozila;', 'da ubrza vozilo prilikom preticanja i skrati vreme i put preticanja'],c:1},
+  {q:'Koja je namena ESC/ESP-a (Sistem kontrole elektronske stabilnosti vozil',o:['? a -  da omogući vozaču da pokrene vozilo iz mesta na klizavoj podlozi;', 'da spreči naglo zaustavljanje i kočenje vozila kako bi se produžio zaustavni put i povećala udobnost usporavanja vozila;', 'da ubrza vozilo prilikom preticanja i skrati vreme i put preticanja -', 'da spreči zanošenje vozila i očuva njegovu upravljivost i stabilnost;'],c:3},
+  {q:'Koja je namena tzv. alkoholne blokade?',o:['da odmah obavesti policiju, ukoliko se upotrebom ovog uređaja utvrdi da je vozač u alkoholisanom stanju, odnosno da akolisanost prelazi limit koji je zadat na uređaju;', 'da ne dozvoli pokretanje motora vozila, ukoliko se upotrebom ovog uređaja utvrdi da vozač ima manju količinu alkohola u krvi od limita koji je zadat na uređaju;', 'da spreči pokretanje motora vozila, ukoliko se upotrebom ovog uređaja utvrdi da je vozač u alkoholisanom stanju, odnosno da alkoholisanost vozača prelazi limit koji je zadat na uređaju.', 'da informiše vozača o stepenu alkoholisanosti, kako bi on odlučio kako dalje da se ponaša'],c:2},
+  {q:'Šta je poslovni kodeks ponašanja?',o:['način ophođenja vozača van radnih aktivnosti, tokom izvršenja privatnih poslova i obaveza, u komunikaciji sa članovima porodice;', 'skup zakona, podzakonskih akata i drugih odrebi koje predstavljaju obavezno ponašanje vozača u svim situacijama;', 'skup načela, pravila i procedura koje predstavljaju smernice zaposlenima za ponašanje i odnose tokom poslovnih aktivnosti;', 'uobičajen način ponašanja svakog pojedinca prilikom obavljanja poslovnih aktivnosti.'],c:2},
+  {q:'Šta se podrazumeva pod zlatnim&quot; pravilima ponašanja?',o:['kulturno i moralno ponašanje uz poštovanje drugih;', 'ponašanje u kome treba poštovati sopstveni stav i mišljenje, bez obzira na okolnosti;', 'ponašanje kojim će se objasniti putniku da je vozač u pravu;', 'ponašanje koje zahteva od vozača da povisi ton i odbije komunikaciju sa putnikom.'],c:0},
+  {q:'Šta treba da sadrži poslovni kodeks ponašanja?',o:['odrebe o ponašanju sa putnicima, odredbe o radnoj disciplini i odredbe o higijeni i odevanju;', 'odrebe o trasi puta i vremenima polazaka i dolazaka na liniji;', 'odrebe o saobraćajnoj signalizaciji, pravilima saobraćaja i regulisanju saobraćaja', 'odredbe o stručnoj spremi i vrsti kvalifikacije za određeno radno mesto u firmi.'],c:0},
+  {q:'Koje su četiri čarobne&quot; reči komunikacije?',o:['u redu je - bez komentara - drugi put - ćao;', 'izvolite - molim - hvala - oprostite;', 'ne mogu - neću - ne želim - ne smem;', 'reči koje vozač uobičajeno upotrebljava u razgovoru sa kolegama'],c:1},
+  {q:'Poslovni ugled prevoznika najviše zavisi :',o:['od vrste, marke i tipa autobusa kojim obavlja prevoz;', 'od ponašanja vozača i njegovog opohođenja prema putnicima;', 'od broja zaposlenih vozača i broja autobusa koji poseduje;', 'od vste prevoza koji obavlja.'],c:1},
+  {q:'Na koji način doprinosi ophođenje vozača prema putniku na profesionalan, ljubazan i pažljiv način?',o:['opterećuje vozača dodatnim angažovanjem i aktivnostima, pored upravljanja vozilom;', 'nema nikakav uticaj na poslovni ugled prevoznika;', 'negativno doprinosi poslovnom ugledu prevoznika', 'pozitivno doprinosi poslovnom ugledu prevoznika'],c:3},
+  {q:'Kako se manifestuje dobar poslovni ugled prevoznika?',o:['što veću zaradu i što manji trošak poslovanja;', 'što veći broj radnih sati vozača;', 'povećanjem broja korisnika, pozitivnim medijskim izveštajima i prenošenjem pozitivnih utisaka &quot;od usta do usta&quot;.', 'Smanjenjem broja korisnika kako autobusi ne bi bili opterećeni.'],c:2},
+  {q:'Koja ovlašćenja ima policija prilikom granične provere lica?',o:['proverava poreklo imovine lica;', 'proverava zdravstveno stanje lica;', 'proverava identite lica;', 'vrši provere poslovnih aktivnosti lica'],c:2},
+  {q:'Koje vrste graničnih provera lica postoje?',o:['osnovna i detaljna granična provera;', 'prva i druga granična provera;', 'usmena i pismena granična provera;', 'letnja i zimska granična provera'],c:0},
+  {q:'Koje su obaveze operatera, vlasnika ili korisnika vozila (vozača ), za vreme granične provere?',o:['dužni su da obaveste vlasnika firme o svakoj graničnoj proveri pre otpočinjanja;', 'nisu dužni da obezbede potrebne uslove za obavljanje granične provere vozila -', 'dužni su da obezbede potrebne uslove za obavljanje granične provere vozla;', 'mogu samostalno da odluče o uslovima za obavljanje granične provere vozila'],c:2},
+  {q:'Pod kojim uslovima maloletno lice do navršenih 16 godina može putovati preko granice ?',o:['ne može putovati preko granice;', 'samo u pratnji roditelja ili drugog lica koje ima pisanu i overenu saglasnost oba roditelja;', 'može putovati samostalno preko granice;', 'može putovati bez roditelja u pratnji bilo kog punoletnog lica'],c:1},
+  {q:'Koja dokumenta moraju da imaju državljani trećih zemalja (i Srbije), prilikom ulaksa u državu potpisnicu Šengenskog sporazuma ?',o:['moraju imati putnu ispravu koja važi ne više od 3 meseca od dana ulaska u državu potpisnicu šengenskog sporazuma;', 'moraju imati putnu ispravu koja važi najmanje 3 mesece nakon planiranog datuma odlaska iz države potpisnice šengenskog sporazuma;', 'ne moraju imati putnu ispravu pri ulasku u državu potpisnicu šengenskog sporazuma, ako poseduju drugi lični dokument;', 'moraju imati ličnu kartu i vozačku dozvolu da bi ušli u državu potpisnicu šengenskog sporazuma'],c:1},
+  {q:'Koje saobraćajne trake može koristiti vozač autobusa prilikom ulaska u države Šengenskog sporazuma ?',o:['vozač autobusa sa registarskim oznakama republike srbije može koristit sve saobraćajne trake na graničnom prelazu, bez obzira na natpise;', 'vozač autobusa sa registarskim oznakama republike srbije može koristit samo saobraćajnu traku iznad koje stoji natpis eu citizens;', 'vozač autousa sa registarskim oznakama republike srbije mora da koristi samo saobraćajnu traku iznad koje stoji natpis eu citizens;', 'vozač autobusa sa registarskim oznakama republike srbije može koristiti samo saobraćajne trake iznad kojih stoje natpisi ALL PASSPORTS ili NOT VISA REQURIED'],c:3},
+  {q:'Šta treba da uradi vozač prilikom prilaska državnoj granici?',o:['da sačeka početak granične provere kako bi preduzeo dalje aktivnosti;', 'da sačeka kraj granične provere kako bi preduzeo dalje aktivnosti;', 'da putnicima pravovremeno i tačno saopšti instrukcije i upustva vezano za postupak granične provere', 'da ne uznemirava putnike koji spavaju ili su zauzeti drugim aktivnostima'],c:2},
+  {q:'Ergonomija se bavi:',o:['karakteristikama ljudi koje treba uzeti u obzir pri projektovanju vozila,', 'proučavanjem i mentalnih i fizičkih karakteristika ljudi,', 'dizajniranjem alata i radne okoline na način da ih prilagođava radniku,', 'sve navedeno.'],c:3},
+  {q:'Ergonomija se deli na:',o:['apstraktnu, vizuelnu i kognitivnu,', 'kognitivnu, organizacionu i psihičku,', 'organizacionu, fizičku i kognitivnu,', 'ništa od navedenog.'],c:2},
+  {q:'U ergonomske faktore čoveka možemo svrstati:',o:['psihofizičke i antropometrijske karakteristike vozača,', 'psihofizičke i motoričke karakteristike vozača,', 'samo psihofizičke karakteristike vozača,', 'samo antropometrijske karakteristike vozača'],c:0},
+  {q:'Ergonomski faktori vozila su:',o:['sigurnost i udobnost,', 'kompatibilnost i prilagođenost,', 'efikasnost i fizički i mikroklimatski uslovi,', 'sve navedeno.'],c:3},
+  {q:'Osnovne komande za upravljanje vozilom u kabini vozača su:',o:['točak upravljača i ručica menjačkog prenosnika,', 'kvačilo i papučica radne kočnice,', 'papučica akseleratora i poluga pomoćne kočnice,', 'sve navedeno.'],c:3},
+  {q:'Upravljanje vozilom u noćnim uslovima podrazumeva:',o:['bolju vidljivost i bolji kontrast,', 'smanjenu vidljivost, čestu pojavu iznenadnih prepreka, umanjen kontrast,', 'umanjen kontrast ali redu pojavu iznenadnih prepreka,', 'smanjenu vidljivost.'],c:1},
+  {q:'Zauzimanjem pravilnog položaja u vozilu, olakšava se vožnja jer:',o:['vozač ima bolju preglednost,', 'vozač ima bolju preglednost, odmorniji je nakon duže vožnje i ima bolju koncentraciju,', 'jednaka je preglednost i koncentracija kao i kada ne zauzme pravilan položaj,', 'ništa od navedenog.'],c:1},
+  {q:'Za vozača je važno:',o:['pravilan prilazak vozilu, pravilan ulazak i izlazak iz vozila, pravilno podešavanje vozačkih ogledala, prilagođavanje sedišta i naslona za glavu, vezivanje pojasa,', 'samo vezivanje pojasa,', 'pravilan ulazak i izlazak iz vozila,', 'podešavanje vozačkih ogledala'],c:0},
+  {q:'Ograničenje radnog vremena vozača propisano je iz:',o:['represivnih razloga,', 'preventivno-bezbednosnih razloga,', 'zdravstvenih razloga,', 'ništa od navedenog.'],c:1},
+  {q:'Profesionalni vozači su u povećanom riziku od pojave umora jer:',o:['voze noću,', 'prelaze velike distance,', 'provode veliki deo vremena za volanom,', 'sve navedeno.'],c:3},
+  {q:'Hormon kojim se održava Cirkadijalni ritam tj. unutrašnji biološki sat je:',o:['adenozin,', 'kortizol,', 'melatonin,', 'serotonin.'],c:2},
+  {q:'U osnovne uzroke umora spadaju:',o:['nedostatak sna i loš kvalitet spavanja,', 'unutrašnji biološki sat - Cirkadijalni ritam,', 'vreme provedeno na radu i monoton zadatak,', 'sve navedeno.'],c:3},
+  {q:'Najbolji način da se preventivno deluje na vozački umor je:',o:['šoljica kafe ili čaša coca-cole, red bull-a i slično,', 'dobar i kvalitetan san,', 'provetravanje kabine,', 'kraća šetnja na svežem vazduhu.'],c:1},
+  {q:'Izvori stresa za profesionalne vozače mogu biti:',o:['ograničeno kretanje i velika odgovornost,', 'frustracije i konflikti,', 'nepovoljni uslovi rada i fizički zahtevi,', 'sve navedeno.'],c:3},
+  {q:'Načini za kontrolu stresa su:',o:['antistres programi, relaksacione tehnike, razgovor sa drugima o svojim osećanjima, prihvatanje negativnih osećanja, humor, bavljenje fizičkim aktivnostima,', 'zdrava ishrana i vežbanje,', 'mnogo sna i odmora,', 'yoga i meditacija'],c:0},
+  {q:'Umor se manifestuje kroz:',o:['zevanje i odsutnost,', 'smanjenje pažnje,', 'opadanje radne aktivnosti, nekoordinisane pokrete, zamor, bol, razdražljivost, iscrpljenost, bezvoljnost, nedostatak motivacije i pažnje,', 'iritiranost i želju za svađanjem i konfliktima'],c:2},
+  {q:'Nedovoljna fizička aktivnost je jedan od 10 vodećih uzroka smrti i bolesti:',o:['tačno,', 'netačno,', 'fizička neaktivnost ne doprinosi preterano bolestima,', 'nisam siguran/na'],c:0},
+  {q:'Za dobro fizičko stanje i spremnost važno je:',o:['biti fizički aktivan,', 'biti fizički aktivan, pravilno se hraniti i izbegavati pušenje,', 'biti aktivan, i hraniti se spram afiniteta,', 'nije od preteranog značaja biti fizički aktivan.'],c:1},
+  {q:'U bolesti kojima doprinosi fizička neaktivnost spadaju:',o:['kardiovaskularne bolesti i dijabetes,', 'gojaznost i sleep apnea,', 'ukočenost, bolovi i slabija cirkulacija,', 'sve navedeno.'],c:3},
+  {q:'Apnea je:',o:['kratkotrajni prekid disanja ili pauza u disanju tokom spavanja,', 'kratkotrajni prekid rada srčanog mišića tokom spavanja,', 'plavetnilo ili bledilo sluzokože,', 'usporen rad srca'],c:0},
+  {q:'Šta se sve može postići fizičkom aktivnošću u toku dana:',o:['malo bolje raspoloženje,', 'mršavljenje, bolja kondicija i formiranost mišića,', 'unapređenje zdravlja, sagorevanje kalorija, bolje raspoloženje, smanjenje rizika od hipertenzije,', 'ništa od navedenog'],c:2},
+  {q:'Vežbe koje pozitivno utiču na vozača su:',o:['vežbe istezanja i lagana šetnja,', 'plivanje i trčanje,', 'osnovne vežbe iz teretane i CrossFit vežbe,', 'sve navedeno.'],c:3},
+  {q:'Preventiva je pola zdravlja:',o:['netačno,', 'tačno,', 'tačno samo delimično,', 'nisam siguran/na'],c:1},
+  {q:'Gojaznost predstavlja značajan rizik za nastanak raznih bolesti:',o:['netačno,', 'tačno,', 'tačno samo delimično,', 'nisam siguran/na'],c:1},
+  {q:'Osnovni principi pravilne ishrane su:',o:['racionalnost, umerenost, raznovrsnost, ravnomernost,', 'obilje i raznovrsnost,', 'umerenost i uvremenjenost,', 'uobročenost i raznovrsnost.'],c:0},
+  {q:'Osnovni elementi hrane su:',o:['ugljeni hidrati ili šećeri,', 'belančevine ili proteini,', 'masti, vitamini i minerali,', 'sve navedeno.'],c:3},
+  {q:'Za sticanje pravilnih navika tokom višesatnog upravljanja važno je:',o:['jesti kada se oseti glad,', 'pravljenje plana ishrane, konzumiranje zdravih užina, pravilo 30 minuta&quot;, jesti sporo, voditi računa o veličini porcija, žeđ gasiti vodom,', 'gladovati što više, hrana šteti organima,', 'jesti što više voća'],c:1},
+  {q:'Količina alkohola u krvi zavisi od:',o:['toga da li je razblažen vodom,', 'količine hrane u želucu,', 'količine popijenog alkohola, brzine kojom se konzumira, količine hrane u želucu, vrste alkoholnog pića, pola, telesne težine,', 'ništa od navedenog.'],c:2},
+  {q:'Alkohol negativno deluje na osnovne performanse vozača (Centralni nervni sistem, percepciju, obradu, informacija, psihomotorne sposobnosti, pažnju, rasuđivanje...):',o:['tačno,', 'netačno,', 'delimično tačno,', 'ja od alkohola imam samo benefite.'],c:0},
+  {q:'Psihoaktivne supstance su:',o:['droge,', 'alkohol,', 'neki lekovi,', 'sve navedeno.'],c:3},
+  {q:'Alkohol spada u:',o:['stimulanse,', 'depresore,', 'halucinogene,', 'ništa od navedenog.'],c:1},
+  {q:'Koji faktori mogu uticati na ispravnost donošenja odluke:',o:['stanje vozila', 'vidljivost', 'saobraćajni i vremenski uslovi', 'sve navedeno'],c:3},
+  {q:'Koji je najznačajniji faktor bezbednosti saobraćaja:',o:['čovek', 'vozilo', 'put', 'okruženje'],c:0},
+  {q:'Od čega zavisi subjektivni rizik nastanka opasnosti u saobraćaju:',o:['stanja puta', 'čoveka', 'obima saobraćaja', 'svetlosne signalizacije'],c:1},
+  {q:'U kratkotrajne ljudske faktore spadaju:',o:['raspoloženje', 'motivacija', 'koncentracija', 'sve navedeno'],c:3},
+  {q:'Koja faza prethodi fazi sudara kao jednoj od faza scenarija saobraćajne nezgode:',o:['faza vožnje', 'faza prekida', 'kritična faza', 'faza odmora'],c:2},
+  {q:'Ako vozač stoji na semaforu na kojem je crveno svetlo, a u njega otpozadi udara drugi vozač, takav vozač je prema ulozi koje njegovo ponašanje ima u izazivanju saobraćajne nezgode:',o:['primarno aktivan vozač', 'sekundarno aktivan vozač', 'neaktivan vozač', 'pasivan vozač'],c:3},
+  {q:'Uspešnost učešća u saobraćaju može da zavisi od:',o:['dužine vremena izloženosti riziku', 'stepena objektivnog rizika', 'brzini kojom se čovek, odnosno vozilo kreće', 'sve navedeno'],c:3},
+  {q:'Uspeh sa kojim će čovek (posebno vozač motornog vozil',o:['učestvovati u saobraćaju najviše zavisi od: a -  opreme u vozilu', 'vremenskih uslova', 'broja putnika u vozilu', 'brzine kretanja'],c:3},
+  {q:'Objektivni rizik proizvode objektivni faktori (uzroci nezgoda, izvori opasnosti) i radi se pre svega o:',o:['rizicima povezanim sa okolinom puta', 'rizicima povezanim sa vozilom', 'rizicima povezanim sa prirodnim faktorima', 'sve navedeno'],c:3},
+  {q:'Na koje sve načine čovek može da preduzme mere kako bi sprečio nastanak saobraćajne nezgode:',o:['mora da bude svestan svojih psihofizičkih sposobnosti', 'mora da kontroliše i održava zdravlje i kondiciju', 'mora da bude spreman da se usavršava', 'sve navedeno'],c:3},
+  {q:'Za bezbednost saobraćaja nije samo važna brzina kojom se vozač kreće nego i:',o:['ubrzanje prilikom kretanja', 'brzina zaustavljanja', 'pravovremena promena (prilagođavanje) brzine', 'ništa od navedenog'],c:2},
+  {q:'Vozač je napravio grešku, ali nikog nije ugrozio jer nije bilo ostalih učesnik',o:['Data situacija je: a -  saobraćajna nezgoda', 'apstraktna opasnost', 'konkretna opasnost', 'sve navedeno'],c:1},
+  {q:'Da bi se izbegle nezgode vozač treba da usvoji i da se adaptira na optimalne bezbednosne granice, što znači da vozač treba da:',o:['usvoji ponašanje koje mu omogućava da izbegne nezgodu i kad se nađe u retkim saobraćajnim situacijama', 'odustane od upravljanja vozilom', 'upravlja vozilom brzinama većim od dozvoljenih', 'upravlja vozilom znatno sporije od dozvoljenih brzina'],c:0},
+  {q:'Šta vozač treba stalno da radi prilikom vožnje:',o:['poštuje ograničenja', 'vozi defanzivno', 'ne nadoknađuje propušteno vreme putovanja&quot;', 'sve navedeno'],c:3},
+  {q:'Najčešća podela vanrednih situacija je na:',o:['prirodne', 'tehnološke', 'kombinovane', 'sve navedeno'],c:3},
+  {q:'Uslovnu podelu vanrednih situacija u transportu možemo izvršiti:',o:['prema mestu nastanka', 'prema dužini puta', 'prema vrsti vozila', 'prema vrsti robe koja se prevozi'],c:0},
+  {q:'Vozač koji je učesnik saobraćajne nezgode u kojoj je neko lice poginulo ili zadobilo telesne povrede ili je pričinjena velika materijalna šteta, dužan je da:',o:['skloni vozilo sa kolovoza da bi ostali učesnici u saobraćaju mogli nesmetano da nastave vožnju', 'ukoliko nema poginulih i povređenih, a prema proceni nije pričinjena velika materijalna šteta, nastavi vožnju kao da do nezgode nije ni došlo', 'ni u kom slučaju ne pruža prvu pomoć povređenim licima', 'obavesti policiju i ostane na mestu nezgode do dolaska policije i završetka uviđaja'],c:3},
+  {q:'U situacijama kada je u saobraćajnoj nezgodi nastala manja materijalna šteta definisane su aktivnosti vozača:',o:['da popuni Evropski izveštaj o saobraćajnoj nezgodi', 'da ostavi podatke o sebi i vozilu drugom učesniku u nezgodi ili policiji', 'da upozori sva lica da se sklone sa kolovoza, da ne bi ometala saobraćaj', 'sve navedeno'],c:3},
+  {q:'Aktivnosti vozača u cilju smanjenja mogućnosti za nastanak saobraćajne nezgode su:',o:['prilagodi brzinu uslovima i okolnostima', 'ubrza vozilo da bi nadoknadio propušteno vreme putovanja&quot;', 'poštuje ograničenja samo ako je gužva u saobraćaju', 'upravlja vozilom znatno sporije od dozvoljenih brzina'],c:0},
+  {q:'Da bi se olakšala organizacija prevoza putnika, putnici se najčešće svrstavaju u koje kategorije?',o:['deca (kao samostalni putnici ili u pratnji), deca - daci, studenti, starije osobe, zaposleni,, osobe sa posebnim potrebama', 'osobe do 30 god -  i osobe preko 30 god -', 'osobe muškog pola i osobe ženskog pola', 'ništa od navedenog'],c:0},
+  {q:'Kategoriju starijih osoba najčešće predstavljaju lica starija od?',o:['50 godina', '90 godina', '65 godina', '85 godina'],c:2},
+  {q:'Šta najčešće karakteriše kategoriju starijih osoba?',o:['ljubaznost', 'tolerancija', 'fin stil oblačenja', 'slabija čula vida i sluha'],c:3},
+  {q:'Na šta posebno treba vozač da obratiti pažnju prilikom prevoza starijih lica?',o:['količinu goriva u rezervoaru', 'ubrzavanje vozila, nagla promena pravca kretanja ili kočenje', 'pritisak u pneumaticima', 'najavu sledećeg stajališta'],c:1},
+  {q:'Licima koja imaju nedostatak ekstremiteta u autobusu potrebno je?',o:['mesto za stajanje', 'stalni nadzor', 'mesto za sedenje', 'ne mogu se prevoziti'],c:2},
+  {q:'Koliko treba da traje dnevnog odmora vozač koji vrši prevoz dece pre započinjanja radnog dana?',o:['najmanje 11 časova', 'najmanje 24 časa', 'najmanje 9 časova', 'najmanje 45 časova'],c:0},
+  {q:'Vozač koji upravlja vozilom kojim se prevoze deca, mora da poseduje i nosi sa sobom fotokopiju lekarskog uverenja ne starije od?',o:['tri godine', 'šest meseci', 'mesec dana', 'jedne godine'],c:3},
+  {q:'Sa čime mora da bude obeleženo vozilo koje vrši organizovan prevoz dece?',o:['ADR tablama', 'TIR tablama', 'posebnim znakom za organizovan prevoz dece', 'ne mora da bude obeleženo'],c:2},
+  {q:'Koliko najmanje kutija prve pomoći mora imati vozilo (predviđeno za prevoz najviše 22 putnik',o:['koje vrši organizovan prevoz dece? a -  dve kutije veličine B&quot;', 'jednu kutiju veličine A&quot;', 'jednu kutiju veličine TT1&quot;', 'jednu kutiju veličine B&quot;'],c:3},
+  {q:'Šta od opreme mora posedovati vozilo koje vrši organizovan prevoz dece?',o:['aparat za hladnu vodu', 'najmanje dva televizora', 'ispravne sigurnosne pojaseve', 'tamna bočna stakla na vozilu'],c:2},
+  {q:'Šta spada u kriminalne aktivnosti?',o:['prekršaji', 'privredni prestupi', 'krivična dela', 'sve od navedenog'],c:3},
+  {q:'Kako možemo podeliti kriminal?',o:['mali i veliki', 'opšti i privredni', 'organizovani i pojedinačni', 'nema podelu'],c:1},
+  {q:'Koje su vrste krivičnih dela protiv imovine?',o:['pronevera u obavljanju privredne delatnosti', 'primanje i davanje mita', 'krađa i teška krađa', 'nedozvoljena trgovina'],c:2},
+  {q:'Šta je krijumčarenje?',o:['prenošenje robe preko carinske linije i plaćanje carinskih obaveza', 'prenošenje robe preko carinske linije izbegavajući mere carinskog nadzora', 'nedozvoljena trgovina i nabavka robe', 'prenos pokretne imovine sa znanjem da ista potiče od kriminalne delatnosti'],c:1},
+  {q:'Šta predstavlja krijumčarenje narkotika?',o:['krivično delo', 'privredni prestup', 'prekršaj', 'sve od navedenog'],c:0},
+  {q:'Šta možemo navesti kao negativan uticaj kriminala na drumski transport?',o:['mogućnost nastanka troškova', 'potencijalan gubitak posla', 'narušavanje ugleda prevoznika', 'sve od navedenog'],c:3},
+  {q:'Posledice ulaska ilegalnih migranata u vozila kako bi neprimećeni prešli državnu granicu nanosi veliku štetu i to:',o:['štete na vozilima', 'štete na teretu (krađa i kontaminacija )', 'fizičko i psihičko nasilje (uznemiravanje) nad vozačima', 'sve od navedenog'],c:3},
+  {q:'Mere za sprečavanje kriminala se mogu podeliti na:',o:['legalne i ilegalne', 'tehničke i organizacione', 'utovarne i istovarne', 'unutrašnje i spoljašnje'],c:1},
+  {q:'Plombe se klasifikuju kao:',o:['sigurnosne', 'indikativne', 'visoko sigurnosne', 'sve od navedenog'],c:3},
+  {q:'U smernice za sprečavanje kriminala spada:',o:['potreba da baterija mobilnog telefona uvek bude napunjena', 'deljenje iskustva vezana za incidente sa kolegama vozačima', 'izbegavanje puteva visokog rizika', 'sve od navedenog'],c:3},
+  {q:'Koje značenje ima izraz nezgoda&quot;:',o:['vanredni događaj', 'slučajni događaj', 'vanredna situacija', 'ništa od navedenog'],c:1},
+  {q:'Kako se po ZOBS naziva nezgoda koja se dogodila na putu ili je započeta na putu, u kojoj je učestvovalo najmanje jedno vozilo u pokretu       i u kojoj je najmanje jedno lice poginulo ili   povređeno ili je nastala materijalna šteta:',o:['udes', 'sudar', 'saobraćajna nesreća', 'saobraćajna nezgoda'],c:3},
+  {q:'Šta je statistika saobraćajnih nezgoda:',o:['zbir saobraćajnih nezgoda', 'jedinica mere za saobraćajne nezgode', 'pregled brojčanih pokazatelja', 'sve od navedenog'],c:2},
+  {q:'Koji je najčešći razlog saobraćajne nezgode u kojima su učestvovali vozači autobusa:',o:['bočni sudar', 'sudar pri uporednoj vožnji', 'sudar iz suprotnog smera', 'sudar pri vožnji u istom smeru'],c:3},
+  {q:'Šta se smatra nastradalim licima u saobraćajnim nezgodama:',o:['poginula lica', 'povređena lica', 'poginula i povređena lica', 'ništa od navedenog'],c:2},
+  {q:'Od kako se vode evidencije saobraćajnih nezgoda, podacima Agencije za bezbednost saobraćaja najmanji broj poginulih lica u Republici Srbiji zabeležen   je:',o:['2019 godine', '2009 godine', '1999 godine', 'ništa od navedenog'],c:0},
+  {q:'Šta je javni rizik stradanja u saobraćaju:',o:['težina povređivanja u saobraćajnim nezgodama u odnosu na ukupnu težinu povređivanja', 'ukupan broj poginulih u saobraćaju u odnosu na milion stanovnika nekog područja', 'ukupan broj poginulih i povređenih lica u saobraćajnim nezgodama u odnosu na broj zaposlenih na nekom području', 'ništa od navedenog'],c:1},
+  {q:'Ko najviše strada u saobraćajnim nezgodama sa učešćem autobusa:',o:['vozači i putnici u autobusu', 'pešači', 'vozači i putnicu u putničkom automobilu', 'biciklisti'],c:2},
+  {q:'Po statističkim podacima Agencije za bezbednost saobraćaja u toku 24 časa najveći broj saobraćajnih nezgoda sa poginulim licima sa učešćem autobusa desi se u:',o:['19h', '7h', '13h', '14h'],c:0},
+  {q:'Po statističkim podacima Agencije za bezbednost saobraćaja u toku nedelje najveći broj saobraćajnih nezgoda sa poginulim licima sa učešćem autobusa desi se u:',o:['nedelju', 'subotu', 'četvrtak', 'utorak'],c:3},
+  {q:'Vektorska veličina koja je okarakterisana intezitetom, pravcem i smerom, a koja dovodi do rotacije tela, naziva se:',o:['snaga', 'sila', 'moment', 'ubrzanje'],c:2},
+  {q:'Jedinica za obrtni moment motora je:',o:['kW', 'dB', 'Nm', 'ms-1'],c:2},
+  {q:'Jedinica za snagu motora je:',o:['kW', 'dB', 'Nm', 'ms-1'],c:0},
+  {q:'Dizel motori u odnosu na benzinske motore imaju obrtni moment:',o:['manji', 'veći', 'isti', 'ništa od navedenog'],c:1},
+  {q:'Motori koji maksimalnu snagu i obrtni moment ostvaruju na nižim brojevima obrataja su:',o:['motori sa pogonom na benzin', 'motori sa pogonom na dizel', 'motori sa pogonom na benzin i TNG', 'motori sa pogonom na benzin i metan'],c:1},
+  {q:'Snaga motora definiše se kao:',o:['obrtni moment x broj obrtaja motora', 'obrtni moment / broj obrtaja motora', 'obrtni moment x brzina kretanja vozila', 'obrtni moment / brzina kretanja vozila'],c:0},
+  {q:'Kolika će biti maksimalna brzina kamiona zavisi od:',o:['snage motora', 'obrtnog momenta motora', 'prenosnih odnosa menjača', 'ništa od navedenog'],c:0},
+  {q:'Obrtni moment motora zavisi od:',o:['prečnika i hoda klipa', 'vrste goriva', 'vrste menjača', 'ništa od navedenog'],c:0},
+  {q:'Sa porastom broja obrtaja motora snaga motora:',o:['ostaje nepromenjena', 'raste', 'opada', 'raste do odredjene granice, a zatim opada'],c:3},
+  {q:'Maksimalni obrtni moment i maksimalna snaga motora dobijaju se:',o:['pri istim brojevima obrtaja motora', 'maksimalni obrtni moment se dobija pri nižim brojevima obrataja motora u odnosu na maksimalnu snagu', 'maksimalni obrtni moment se dobija pri višim brojevima obrataja motora u odnosu na maksimalnu', 'ništa od navedenog snagu'],c:1},
+  {q:'Sistem za prenos snage (transmisij',o:['ima zadatak da obrtni moment: a -  prenese sa kolenastog vratila (radilice) na pogonske točkove', 'prenese sa upravljača na diferencijal', 'prenese sa spojnice na poteznicu', 'prenese sa kolenastog vratila (radilice) na upravljačku osovinu'],c:0},
+  {q:'Osnovne funkcije spojnice su:',o:['prenos snage', 'ublažavanje udara od motora', 'zaštita u slučaju preopterećenja', 'sve navedeno'],c:3},
+  {q:'Osnovni delovi spojnice su:',o:['potisna ploča, kolenasto vratilo i potisni (druk) ležaj', 'kućište, diferencijal, potisna ploča i potisni (druk) ležaj', 'kućište, frikcioni disk, potisna ploča i potisni (druk) ležaj', 'kućište, frikcioni disk, potisna ploča i klipnjača'],c:2},
+  {q:'Menjač kod kojeg računar analizom podataka bira predefinisani stepen prenosa, naziva se:',o:['manuelni menječ', 'automatski menjač', 'mehanički menjač', 'polu-automatski menjač'],c:1},
+  {q:'Element transmisije koji povezuje menjač i glavni prenosnik (diferencijal), naziva se:',o:['poluosovina', 'vratilo', 'kardan (kardansko vratilo)', 'ništa od navedenog'],c:2},
+  {q:'Sistem za prenos snage motora na pogonske točkove drugačije nazivamo:',o:['transmiter', 'transmisija', 'transporter', 'transformator'],c:1},
+  {q:'Sistem transmisije omogućava:',o:['maksimalnu snagu vozila bez obzira na stepen prenosa', 'maksimalni obrtni moment vozila bez obzira na stepen prenosa', 'bolju iskorišćenost performansi vozila', 'da pogonski točkovi neproklizaju prilikom pokretanja vozila'],c:2},
+  {q:'Osnovne funkcije sistema za kočenje su:',o:['omogućavanje vozaču da na bezbedan, brz i efikasan način progresivno smanji brzinu kretanja vozila', 'obezbedjivanje stabilnosti i upravljivosti pri kočenju', 'realizacija kočenja uz prihvatljiv, potreban nivo komfora putnika', 'sve navedeno'],c:0},
+  {q:'Osnovni podsistemi sistema za kočenje su:',o:['radna i pomoćna kočnica', 'radna, pomoćna i dopunska', 'radna, pomoćna, parkirna i dopunska kočnica', 'pomoćna, parkirna i dopunska'],c:2},
+  {q:'Sistem za kočenje sastoji se od:',o:['Komande', 'Prenosnog mehanizma', 'kočnice', 'svega navedenog'],c:3},
+  {q:'Prenosni mehanizam prema vrsti prenosa deli se na:',o:['mehanički, hidraulički, dinamički i pneumatski', 'pneumatski, poluautomatsi i elektronski', 'kombinovani, spojnički i mehanički', 'mehanički, hidraulički, pneumatski, elektro i kombinovani'],c:3},
+  {q:'Kod teških teretnih vozila i autobusa, najčešće primenjivani sistem za kočenje je:',o:['pneumatski', 'kombinovani', 'mehanički', 'elektronski'],c:0},
+  {q:'Pneumatski prenosni sistem za aktiviranje kočnica koristi:',o:['ulje', 'struju', 'vazduh', 'sve navedeno'],c:2},
+  {q:'Kočnica prvenstveno namenjena blažem, dugotrajnom kočenju, naziva se:',o:['radna kočnica', 'dopunska kočnica (retarder-usporač ili usporivač)', 'pomoćna kočnica', 'parkirna kočnica'],c:1},
+  {q:'Retarder se kao pomoćna kočnica ugradjuje u vozila iz sledećih razloga:',o:['povećanja bezbednosti', 'skraćenje zaustavnog puta', 'uštede frikcionih obloga glavne kočnice', 'svega navedenog'],c:3},
+  {q:'Navedi dve vrste kočnica koje su deo istog podsistema kočenja:',o:['pomoćna i parkirna', 'vazdušna i hidraulična kočnica', 'glavna i parkirna', 'sve navedeno'],c:0},
+  {q:'Uredjaj koji se koristi za efikasno usporenje vozila tokom dugotrajnog kočenja naziva se:',o:['kočnica', 'usporivač/retarder', 'ručna kočnica', 'spojnica'],c:1},
+  {q:'Aktiviranje retardera može biti pomoću:',o:['komande na pedali kočnice', 'komande na pedali kočnice i/ili ručice na stubu upravljača', 'komande na menjaču', 'ništa od navedenog'],c:1},
+  {q:'Upotreba usporivača/retardera:',o:['skraćuje radni vek radne (frikcione) kočnice', 'produžava radni vek radne (frikcione) kočnice', 'nema uticaja na radni vek radne (frikcione) kočnice', 'ništa od navedenog'],c:1},
+  {q:'Standarnda izvedba radne kočnice kod teretnih vozila i autobusa može biti:',o:['motorna kočnica', 'disk i doboš kočnica', 'retader', 'ništa od navedenog'],c:1},
+  {q:'Kočenje upotrebom radne kočnice vrši se:',o:['trenjem', 'klizanjem', 'proklizavanjem', 'sve navedeno'],c:0},
+  {q:'Prilikom kretanja vozila deonicom puta sa padom (nagibom), komponenta sile težine:',o:['neutralno deluje na ubrzanje vozila', 'dodatno ubrzava vozilo', 'dodatno usporava vozilo', 'ništa od navedenog'],c:1},
+  {q:'Prilikom kretanja vozila deonicom puta sa usponom, komponenta sile težine:',o:['neutralno deluje na ubrzanje vozila', 'dodatno ubrzava vozilo', 'dodatno usporava vozilo', 'ništa od navedenog'],c:2},
+  {q:'Pregrevanje kočionih elemenata usled intezivnog kočenja:',o:['smanjuje kočioni koeficijent  (negativno deluje na rad kočionog sistema-', 'povećava kočioni koeficijent (pozitivno deluje na rad kočionog sistema-', 'nema uticaja', 'ništa od navedenog'],c:0},
+  {q:'Radni vek termički “obrađenih” kočnica se:',o:['produžava', 'ne menja', 'skraćuje', 'sve od navedenog'],c:2},
+  {q:'Dužina zaustavnog puta vozila sa termički obrađenim kočnicama se:',o:['skraćuje', 'produžava', 'ostaje nepromenjena', 'ništa od navedenog'],c:1},
+  {q:'Retarder može biti korišćen na jedan od sledećih načina:',o:['isključivo kao pomoćna kočnica', 'isključivo kao glavna kočnica', 'samo kao pomoć glavnoj kočnici', 'kao pomoć glavnoj kočnici, ali i kao glavna kočnica'],c:2},
+  {q:'Na vozilo koje se kreće na usponu deluju sledeće sile otpora:',o:['sila inercije, sila rotacije i sila otpora vazduha', 'sila otpora vazduha, sila otpora tečnosti, sila otpora priključnog vozila i sila težine', 'horizontalna komponenta sile težine, sila otpora kotrljanja točkova, sila otpora vazduha, sila otpora priključnog vozila', 'ništa od navedenog'],c:2},
+  {q:'Sile koje deluju na vozilo mogu se podeliti na:',o:['spoljašnje i unutrašnje', 'aktivne i reaktivne', 'aktivne i pasivne', 'površinske i zapreminske'],c:0},
+  {q:'Sila koja se suprotstavlja kotrljanju točkova naziva se:',o:['sila otpora vazduha', 'sila otpora kotrljanja', 'sila otpora priključnog vozila', 'sila težine'],c:1},
+  {q:'Na vozilo u mirovanju deluju sledeće sile:',o:['sila težine i sila inercije', 'sile inercije i sila trenje', 'sila težine i sila reakcije podloge', 'sila na poteznici i sila otpora vazduha'],c:2},
+  {q:'Sila koja predstavlja otpor sredine u kojoj se vozilo kreće, naziva se:',o:['sila inercije', 'sila otpora vazduha', 'sila priključnog vozila', 'sila otpora kotrljanja'],c:1},
+  {q:'Sila otpora vazduha prvenstveno zavisi od:',o:['ukupne površine vozila', 'zapremine vozila', 'čeone površine prednjeg dela vozila, i brzine vozila', 'ništa od navedenog'],c:2},
+  {q:'Sila koja je aktivna pri svakoj promeni brzine (ubrzavanje ili usporavananje) naziva se:',o:['sila akcije', 'sila reakcije', 'sila inercije', 'vučna sila'],c:2},
+  {q:'Vrednost sile otpora kotrljanja zavisi od:',o:['mase vozila', 'tipa i konstrukcije pneumatika', 'kvaliteta kolovoznog zastora', 'sve navedeno'],c:3},
+  {q:'Uobičajeno se smatra da učešće otpora čeone površine u ukupnom otporu vazduha kod teretnih vozila iznosi:',o:['10%', '65%', '20%', '30%'],c:1},
+  {q:'Posledica interakcije pneumatike i podloge naziva se:',o:['histerezis', 'sabijanje', 'deformacija', 'ništa od navedenog'],c:0},
+  {q:'Prevoznik je dužan da pri polasku sa početne autobuske stanice pri obavljanju međumesnog prevoza, postavi autobus najmanje:',o:['30 minuta pre vremena polaska utvrđenog redom vožnje.', '8 minuta pre vremena polaska utvrđenog redom vožnje.', '15 minuta pre vremena polaska utvrđenog redom vožnje.', 'nije propisan vremenski interval.'],c:1},
+  {q:'Prevoznik je dužan da pri polasku sa početne autobuske stanice pri obavljanju međumesnog prevoza, postavi autobus najviše (najduže):',o:['30 minuta pre vremena polaska utvrđenog redom vožnje.', '15 minuta pre vremena polaska utvrđenog redom vožnje.', '8 minuta pre vremena polaska utvrđenog redom vožnje.', 'nije propisan vremenski interval.'],c:1},
+  {q:'Kada je vozač dužan da postavi vozilo na početnoj stanici prilikom obavljanja domaćeg linijskog prevoza?',o:['u skladu sa svojim mogućnostima', 'najmanje 5 minuta pre polaska', 'neposredno pre polaska', 'najmanje 8 minuta, a najviše 15 minuta pre polaska'],c:3},
+  {q:'Pri obavljanju međumesnog prevoza, prevoznik koji nije u mogućnosti da obavi polazak, po registrovanom redu vožnje, dužan je da o tome obavesti stanice       (koje se nalaze u redu     vožnje) najkasnije:',o:['120 minuta pre otpočinjanja prevoza.', '30 minuta pre otpočinjanja prevoza.', '5 minuta pre otpočinjanja prevoza.', '24 časa pre otpočinjanja prevoza.'],c:1},
+  {q:'Prodaja i izdavanje voznih karata u domaćem prevozu vrši se najkasne do',o:['3 minuta pre polaska autobusa', 'do polaska autobusa', '5 minuta do polaska autobusa', '10 minuta pre polaska autobusa'],c:2},
+  {q:'Koja se oprema za pružanje prve pomoći mora nalaziti u autobusima vrste M2 i M3, koji su predviđeni za prevoz više od 22 putnika?',o:['2 komada kompleta za prvu pomoć tipa B;', '2 komada kompleta za prvu pomoć tipa A;', '1 komad kompleta za prvu pomoć tipa B;', '1 komad kompleta za prvu pomoć tipa A'],c:0},
+  {q:'Koliko najmanje kutija prve pomoći mora imati vozilo (predviđeno za prevoz najviše 22 putnik',o:['koje vrši organizovan prevoz dece? a -  dve kutije veličine B&quot;', 'jednu kutiju veličine A&quot;', 'jednu kutiju veličine TT1&quot;', 'jednu kutiju veličine B&quot;'],c:3},
+  {q:'Koliki je rok važenja početnog sertifikata?',o:['3 godine', '5 godina', '10 godina', 'neograničen'],c:3},
+  {q:'Posle kog vremena neprekidnog upravljanja vozilom se moraju praviti pauze i koliko je njihovo trajanje?',o:['nakon 4 časa upravljanja minimum 30 minuta', 'nakon 4 časa upravljanja - minimum 45 minuta', 'nakon 4 časa i 30 minuta upravljanja - minimum 15 minuta, a nakon novog perioda upravljanja još 30 minuta', 'nakon 4 časa i 30 minuta upravljanja - minimum 45 minuta'],c:3},
+  {q:'Nakon kog perioda se moraju preuzeti podaci sa digitalnog tahografa?',o:['28 dana', '45 dana', '60 dana', '90 dana'],c:3},
+  {q:'Nakon kog perioda se najkasnije moraju preuzeti podaci sa kartice vozača?',o:['21 dan', '28 dana', '45 dana', '60 dana'],c:1},
+  {q:'Koji se podaci ne moraju nalaziti na taho listiću?',o:['gornja granica mernog opsega koja je izražena u km/h', 'oznaka tipa tahografa', 'oznaka odobrenja tipa tahografskog listića', 'oznaka radionice za baždarenje tahografa'],c:3},
+  {q:'Koje podatke vozač ne treba da upiše na prednju stranu taho listića?',o:['mesto početka i završetka rada', 'registarski broj vučnog vozila', 'registarski broj priključnog vozila', 'stanje na odometru'],c:2},
+  {q:'Pored informacija koje beleži analogni tahograf, šta još beleži digatalni tahograf? (izbaciti nepotrebno)',o:['kalibraciju i popravke', 'identitet prevoznika', 'događaje i greške', 'podatke o kontroli'],c:1},
+  {q:'Na koji način se može podeliti javni drumski prevoz (transport) prema području opsluge?',o:['specijalni transport i vanredni transport', 'gradski i seoski drumski transport', 'drumski transport tereta i drumski transport poljopriverdnih proizvoda', 'domaći drumski prevoz (transport) i međunarodni drumski prevoz (transport)'],c:3},
+  {q:'Na koji način se može podeliti domaći javni drumski prevoz (transport)?',o:['autobuski, železnički, rečni i jezerski;', 'linijski, međunarodni, gradski i za sopstvene potrebe;', 'linijski, poseban linijski, vanlinijski, taksi i limo servis;', 'logistički, unutrašnji i spoljašnji transport'],c:2},
+  {q:'Koliko vrsta licenci je propisano za obavljanje javnog drumskog prevoza putnika?',o:['1 vrsta', '2 vrste', '3 vrste', '4 vrste'],c:3},
+  {q:'Šta predstavlja izvod licence?',o:['dokument koji glasi na vozača i daje mu pravo upravljanja vozilom', 'dokument koji je izdat za vozilo i mora se nalaziti u vozilu tokom obavljanja javnog prevoza', 'dokument koji poslodavac čuva u sedištu firme, kako bi dokazao posedovanje licence', 'dokument koji nije bitan za obavljanje javnog drumskog prevoza putnika'],c:1},
+  {q:'Koji dokument mora da poseduje vozač kao dokaz o radnom angažovanju, prilikom obavljanja javnog drumskog prevoza putnika?',o:['vozač mora da poseduje rešenje o poslednjem godišnjem odmoru', 'vozač mora da poseduje izjavu poslodavca o radnom angažovanju', 'vozač mora da poseduje radnu knjižicu', 'vozač mora da poseduje ugovor o radu ili drugi dokument o radnom angažovanju kod poslodavca'],c:3},
+  {q:'Šta ubrajamo u dokumentaciju za vozilo pri obavljanju javnog prevoza putnika?',o:['vozačku dozvolu, cpc karticu i karticu vozača (ukoliko je poseduje)', 'rezevrni točak i pp aparat', 'saobraćajnu dozvolu, izvod licence i registracionu nalepnicu', 'red vožnje ili dozvola za međunarodni linijski prevoz putnika'],c:2},
+  {q:'Šta ubrajamo u dokumentaciju za vozača pri obavljanju javnog prevoza putnika?',o:['vozačku dozvolu, cpc karticu i karticu vozača (ukoliko je poseduje);', 'rezevrni točak i pp aparat;', 'saobraćajnu dozvolu, izvod licence i registracionu nalepnicu', 'red vožnje ili dozvola za međunarodni linijski prevoz putnika;'],c:0},
+  {q:'Koji od dokumenata je obavezan prilikom obavljanja međumesnog linijskog prevoza putnka?',o:['fotokopija reda vožnje overena i potpisana od strane prevoznika', 'ugovor o prevozu prtljaga', 'ugovor o održavanju vozila i potvrda o tehničkoj ispravnosti vozila', 'ugovor o obavljanju vanlinijskog prevoza putnika i spisak putnika'],c:0},
+  {q:'Koja je dokumentacija obavezna prilikom obavljanja vanlinijskog prevoza putnka?',o:['ugovor o prevozu prtljaga i poslovno tehničkoj saradnji', 'ugovor o vanlinijskom prevozu i putni list iz knjige putnih listova', 'vozna karta kao ugovor o prevozu za svakog putnika', 'red vožnje, cenovnik i itinerer'],c:1},
+  {q:'Koja je obavezna dokumentacija prilikom obavljanja međunarodnog vanlinijskog prevoza putnka?',o:['ugovor o prevozu prtljaga i poslovno tehničkoj saradnji;', 'ugovor o vanlinijskom prevozu i putni list iz knjige putnih listova za međunarodni vanlinijski prevoz putnika;', 'vozna karta kao ugovor o prevozu za svakog putnika;', 'red vožnje, cenovnik i itinerer.'],c:1},
+  {q:'Koja je dokumentacija pored polise osiguranja od autoodgovornosti za vozilo kojim se obavlja međunarodni prevoz potrebna za ulazak u određene države?',o:['uverenje o nekažnjavanju vozača koji obavlja prevoz;', 'lekarsko uverenje za vozača;', 'uverenje o tehničkoj ispravnosti vozila;', 'međunarodna karta za osiguranje automobila (zeleni karton).'],c:3},
+  {q:'Da li vozač koji obavlja taksi prevoz, a poseduje CPC ili Kod 95 ispunjava uslov stručne spreme i potrebnog radnog iskustva?',o:['ne smatra se da ispunjava uslov stručne spreme i potrebnog radnog iskustva', 'smatra se da ispunjava uslov stručne spreme i potrebnog radnog iskustva', 'smatra se da ispunjav uslov stručne spreme ali ne i potrebnog radnog iskustva', 'smatra se da ispunjava uslov radnog iskustva ali ne i potreben stručne spreme'],c:1},
+  {q:'Šta vozna karta u međumesnom prevozu putnika treba da sadrži?',o:['ime i prezime putnika, relaciju obavljanja prevoza i tačno vreme dolaska', 'naziv prevoznika, datum polaska, vreme dolaska i cenu prevoza', 'ime i prezime putnika, datum rezervacije i broj sedišta', 'vrstu prevoza, način obavljanja prevoza i registarski broj autobusa'],c:1},
+  {q:'Na osnovu čega se obavlja međunarodni javni linijski prevoz putnika?',o:['na osnovu putnog lista i ugovora o poslovno tehničkoj saradnji;', 'na osnovu ugovora o obavljanju vanlinijskog prevoza i dozvole za vanlinijski prevoz;', 'bez propisane dokumentacije, odnosno uvek u režimu bez dozvola;', 'na osnovu dozvole za obavljanje međunarodnog javnog linijskog prevoza sa odgovarajućim prilozima (redom vožnje, cenovnikom i itinererom).'],c:3},
+  {q:'Na osnovu čega se obavlja međunarodni javni vanlinijski prevoz putnika?',o:['na osnovu ugovora o obavljanju vanlinijskog prevoza, odgovarajućeg putnog lista i dozvole, ako je potrebna za državu tranzita ili državu odredišta;', 'na osnovu dozvole za obavljanje javnog linijskog prevoza sa odgovarajućim prilozima (redom vožnje, cenovnikom i itinererom);', 'bez propisane dokumentacije, odnosno uvek u režimu bez dozvola;', 'na osnovu radnog lista i ugovora o poslovno tehničkoj saradnji'],c:0},
+  {q:'Koji se podaci obavezno upisuju u obrazac putnog lista iz Knjige putnih listova?',o:['registarska oznaka autobusa, poslovno ime prevoznika, ime i prezime svih vozača - članova posade i drugi potrebni podaci;', 'broj licence prevoznika, broj izvoda licence za vozilo i broj ugovora o radu za sve vozače -članove posade;', 'broj saobraćajne dozvole vozila, broj vozačke dozvole vozača koji obavlja prevoz i broj motora i broj šasije.', 'upisuju se podaci po slobodnom izboru prevoznika'],c:0},
+  {q:'Šta spada u obaveznu zimsku opremu autobusa?',o:['lanci odnosno drugi uređaji za povećanje trakcije, lopata i pneumatici čija dubina gazećeg sloja nije manja od 4 mm;', 'lanci odnosno drugi uređaji za povećanje trakcije, lopata i dubina gazećeg sloja na pneumaticima ne manja od 2 mm;', 'zimski pneumatici na svim točkovima i minimalna dubina gazećeg sloja od 16 mm.', 'lanci odnosno drugi uređaji za povećanje trakcije, zimski pneumatici na svim točkovima i najmanje 2 komada klinastih podmetača'],c:0},
+  {q:'Kod prevoza dece, dubina šare na zimskim pneumaticima ima mora da iznosi najmanje',o:['3 mm', '4 mm', '6 mm', '8 mm'],c:3},
+  {q:'Ergonomija se deli na:',o:['apstraktnu, vizuelnu i kognitivnu,', 'kognitivnu, organizacionu i psihičku,', 'organizacionu, fizičku i kognitivnu,', 'ništa od navedenog.'],c:2},
+  {q:'Osnovne komande za upravljanje vozilom u kabini vozača su:',o:['točak upravljača i ručica menjačkog prenosnika,', 'kvačilo i papučica radne kočnice,', 'papučica akseleratora i poluga pomoćne kočnice,', 'sve navedeno.'],c:3},
+  {q:'Upravljanje vozilom u noćnim uslovima podrazumeva:',o:['bolju vidljivost i bolji kontrast,', 'smanjenu vidljivost, čestu pojavu iznenadnih prepreka, umanjen kontrast,', 'umanjen kontrast ali redu pojavu iznenadnih prepreka,', 'smanjenu vidljivost.'],c:1},
+  {q:'Vežbe koje pozitivno utiču na vozača su:',o:['vežbe istezanja i lagana šetnja,', 'plivanje i trčanje,', 'osnovne vežbe iz teretane i CrossFit vežbe,', 'sve navedeno.'],c:3},
+  {q:'Osnovni elementi hrane su:',o:['ugljeni hidrati ili šećeri,', 'belančevine ili proteini,', 'masti, vitamini i minerali,', 'sve navedeno.'],c:3},
+  {q:'Uspešnost učešća u saobraćaju može da zavisi od:',o:['dužine vremena izloženosti riziku', 'stepena objektivnog rizika', 'brzini kojom se čovek, odnosno vozilo kreće', 'sve navedeno'],c:3},
+  {q:'Objektivni rizik proizvode objektivni faktori (uzroci nezgoda, izvori opasnosti) i radi se pre svega o:',o:['rizicima povezanim sa okolinom puta', 'rizicima povezanim sa vozilom', 'rizicima povezanim sa prirodnim faktorima', 'sve navedeno'],c:3},
+  {q:'Najčešća podela vanrednih situacija je na:',o:['prirodne', 'tehnološke', 'kombinovane', 'sve navedeno'],c:3},
+  {q:'Uslovnu podelu vanrednih situacija u transportu možemo izvršiti:',o:['prema mestu nastanka', 'prema dužini puta', 'prema vrsti vozila', 'prema vrsti robe koja se prevozi'],c:0},
+  {q:'U situacijama kada je u saobraćajnoj nezgodi nastala manja materijalna šteta definisane su aktivnosti vozača:',o:['da popuni Evropski izveštaj o saobraćajnoj nezgodi', 'da ostavi podatke o sebi i vozilu drugom učesniku u nezgodi ili policiji', 'da upozori sva lica da se sklone sa kolovoza, da ne bi ometala saobraćaj', 'sve navedeno'],c:3},
+  {q:'Vozač koji upravlja vozilom kojim se prevoze deca, mora da poseduje i nosi sa sobom fotokopiju lekarskog uverenja ne starije od?',o:['tri godine', 'šest meseci', 'mesec dana', 'jedne godine'],c:3},
+  {q:'Šta spada u kriminalne aktivnosti?',o:['prekršaji', 'privredni prestupi', 'krivična dela', 'sve od navedenog'],c:3},
+  {q:'Kako se po ZOBS naziva nezgoda koja se dogodila na putu ili je započeta na putu, u kojoj je učestvovalo najmanje jedno vozilo i u kojoj je najmanje jedno lice poginulo ili povređeno ili je nastala materijalna šteta:',o:['udes', 'sudar', 'saobraćajna nesreća', 'saobraćajna nezgoda'],c:3},
+  {q:'Osnovne funkcije sistema za kočenje su:',o:['omogućavanje vozaču da na bezbedan, brz i efikasan način progresivno smanji brzinu kretanja vozila', 'obezbedjivanje stabilnosti i upravljivosti pri kočenju', 'realizacija kočenja uz prihvatljiv, potreban nivo komfora putnika', 'sve navedeno'],c:0},
+  {q:'Osnovni podsistemi sistema za kočenje su:',o:['radna i pomoćna kočnica', 'radna, pomoćna i dopunska', 'radna, pomoćna, parkirna i dopunska kočnica', 'pomoćna, parkirna i dopunska'],c:2},
+  {q:'Retarder se kao pomoćna kočnica ugradjuje u vozila iz sledećih razloga:',o:['povećanja bezbednosti', 'skraćenje zaustavnog puta', 'uštede frikcionih obloga glavne kočnice', 'svega navedenog'],c:3},
+  {q:'Dužina zaustavnog puta vozila sa termički obrađenim kočnicama se:',o:['skraćuje', 'produžava', 'ostaje nepromenjena', 'ništa od navedenog'],c:1},
+  {q:'Retarder može biti korišćen na jedan od sledećih načina:',o:['isključivo kao pomoćna kočnica', 'isključivo kao glavna kočnica', 'samo kao pomoć glavnoj kočnici', 'kao pomoć glavnoj kočnici, ali i kao glavna kočnica'],c:2},
+  {q:'Na vozilo koje se kreće na usponu deluju sledeće sile otpora:',o:['sila inercije, sila rotacije i sila otpora vazduha', 'sila otpora vazduha, sila otpora tečnosti, sila otpora priključnog vozila i sila težine', 'horizontalna komponenta sile težine, sila otpora kotrljanja točkova, sila otpora vazduha, sila otpora priključnog vozila', 'ništa od navedenog'],c:2},
+  {q:'Sila koja se suprotstavlja kotrljanju točkova naziva se:',o:['sila otpora vazduha', 'sila otpora kotrljanja', 'sila otpora priključnog vozila', 'sila težine'],c:1},
+  {q:'Sila koja predstavlja otpor sredine u kojoj se vozilo kreće, naziva se:',o:['sila inercije', 'sila otpora vazduha', 'sila priključnog vozila', 'sila otpora kotrljanja'],c:1},
+  {q:'Sila koja je aktivna pri svakoj promeni brzine (ubrzavanje ili usporavananje) naziva se:',o:['sila akcije', 'sila reakcije', 'sila inercije', 'vučna sila'],c:2},
+  {q:'Vrednost sile otpora kotrljanja zavisi od:',o:['mase vozila', 'tipa i konstrukcije pneumatika', 'kvaliteta kolovoznog zastora', 'sve navedeno'],c:3},
+  {q:'U međumesnom prevozu putnika obavezan dokument je:',o:['putni list sa spiskom putnika', 'fotokopija registrovanog reda vožnje, koji je potpisan o overen od strane prevoznika.', 'ugovor o posebnom linijskom prevozu sa spiskom putnika', 'ugovor o prevozu za sopstvene potrebe.'],c:1},
+  {q:'Za obavljanje međunarodnog linijskog prevoza potrebno je posedovati obaveznu dokumentaciju i to:',o:['dozvolu koji izdaju nadležni organi država preko čijih teritorija se ta vrsta prevoza obavlja, sa pripadajućim redom vožnje.', 'putni list iz knjige putnih listova, spisak putnika i ugovor o prevozu i dokaz o odobrenju za ukrcavanje i iskcavanje putnika na autobuskih stanicama i stajalištima.', 'potvrdu o podnetom zahtevu za odobravanje reda vožnje za obavljanje međunarodnog linijskog prevoza.', 'samo izvod licence za autobus kojim se obavlja ova vrsta prevoza.'],c:0},
+  {q:'Za obavljanje međunarodnog vanlinijskog prevoza potrebno je posedovati:',o:['ugovor o obavljanju vanlinijskog prevoza, popunjen putni list (iz interbus knjige putnih listovа - i spisak putnika.', 'red vožnje, cenovnik i vozne karte za putnike, za sve putnike, ako se obavlja prevoz prtljaga, obavezno je i izdavanje prtljažnih karata.', 'ugovor o obavljanju posebnog linijskog prevoza identifikacione isprave za korisnike prevoza.', 'samo izvod licence za autobus kojim se obavlja ova vrsta prevoza.'],c:0},
+  {q:'Da li prevoznik koji obavlja vanlinijski prevoz može da koristi stajališta za ukrcavanje i iskrcavanje putnika:',o:['ne može.', 'može.', 'može samo ako su ta stajališta upisana u ugovor o obavljanju vanlinijskog prevoza putnika.', 'može samo ako su ta stajališta upisana u putni list.'],c:0},
+  {q:'Da li je putni nalog obavezan dokument prilikom obavljanja javnog prevoza putnika autobusima?',o:['nije', 'jeste samo za obavljanje linijskog prevoza putnika', 'jeste', 'jeste samo za obavljanje vanlinijskog prevoza putnika'],c:2},
+  {q:'Prevoznik je dužan da čuva putne naloge u propisanom roku ор najmanje:',o:['1 godinu', '2 godine', '5 godina', 'nije dužan da čuva putne naloge.'],c:2},
+  {q:'Koji je dokument obavezan prilikom obavljanja vanlinijskog prevoza?',o:['potvrda o upisu u registar prevoznika za sopstvene potrebe', 'red vožnje i cenovnik', 'putní list iz knjige putnih listova i ugovor o prevozu putnika, kao i spisak putnika.', 'ugovor o posebnom linijskom prevozu'],c:2},
+  {q:'U putni list iz Interbus knjige putnih listova upisuju se:',o:['podaci iz ugovora o radu vozača i brojevi pasoša putnika', 'red vožnje, broj licence prevoznika, broj saobraćajne dozvole autobusa', 'podaci o reg.broju vozila, ime i prezime vozača, naziv prevoznika itd.', 'podaci po izboru prevoznika'],c:2},
+  {q:'U međumesnom prevozu putnika, deca do navršenih 6 godina imaju pravo na povlasticu od:',o:['od 100% od pune cene karte.', '50% od pune cene karte.', 'od 20% od pune cene karte, ako koriste povratnu kartu.', 'nemaju pravo na povlastice.'],c:1},
+  {q:'Da li se vozna karta u međumesnom prevozu može izdati deci ispod 6 godina starosti bez pratioca ?',o:['da.', 'ne.', 'da samo na linijama do 50km.', 'da samo ukoliko mogu sama da se ukrcaju u autobus ili iskrcaju iz autobusa, na bezbedan način.'],c:1},
+  {q:'Prelazna vozna karta u međumesnom prevozu može se izdati samo:',o:['ako prelaz na sledeću liniju počinje na autobuskom stajalištu.', 'ako prelaz na sledeću liniju počinje na autobuskoj stanici.', 'ako prelaz na sledeću liniju počinje van autobuske stanice i van autobuskog stajališta.', 'ako se obavlja vanlinijski prevoz putnika.'],c:1},
+  {q:'Prevoznik koji poseduje licencu za obavljanje međunarodnog vanlinijskog prevoza putnika može obavljati:',o:['međunarodni vanlinijski i međunarodni linijski prevoz putnika', 'međunardni vanlinijski i međunarodni prevoz putnika poseban', 'domaći linijski i domaći vanlinijski prevoz putnika.', 'samo prevoz za sopstvene potrebe'],c:1},
+  {q:'Da bi prevoznik dobio licencu za obavljanje linijskog prevoza putnika mora da obezbedi dokaz da poseduje:',o:['najmanje 1 autobus u vlasništvu ili finansijskom lizingu', 'najmanje 2 autobusa u vlasništvu ili finansijskom lizingu', 'najmanje 3 autobusa u vlasništvu ili finansijskom lizingu', 'najmanje 4 autobusa u vlasništvu ili finansijskom lizingu'],c:2},
+  {q:'Prevoznik koji poseduje licencu za međunarodni linijski prevoz putnika:',o:['ne može obavljati domaći vanlinijski i domaći poseban linijski prevoz putnika', 'može obavljati domaći vanlinijski ali ne može domaći poseban linijski prevoz putnika', 'pored ostalih prevoza może obavljati i domaci vanlinijski domaci poseban linijski prevoz putnika', 'ne može obavljati domaći vanlinijski ali može domaći poseban linijski prevoz putníka'],c:2},
+  {q:'Međunarodni vanlinijski prevoz putnika obavlja se kao:',o:['povremeni i prevoz putnika za sopstvene potreba', 'poseban linijski i poseban vanlinijski prevoz putnika', 'domaći vanlinijski prevoz putnika', 'povremeni i naizmenični prevoz putnika'],c:3},
+  {q:'Vanlinijski prevoz je javni prevoz za koji se itinerer i drugi uslovi prevoza utvrđuju:',o:['jednim ugovorom za sve prevoze na nivou kalendarske godine.', 'utvrđuju na osnovu ugovora o posebnom linijskom prevozu zaposlenih koji važi najmanje 3 meseca.', 'utvrđuju na osnovu overenog i registrovanog reda vožnje voznih karata korisnika prevoza.', 'utvrđuju posebno za svaki prevoz.'],c:3},
+  {q:'Licenca je:',o:['javna isprava kojom se potvrđuje da prevoznik ispunjava propisane uslove sa aspekta obavezne zdravstvene provere zaposlenih vozača.', 'javna isprava koja domaćem prevozniku daje pravo na obavljanje svih ili pojedinih vrsta prevoza.', 'javna isprava u koju je upisana registarska oznaka autobusa kojim se obavlja javni prevoz.', 'potvrda o upisu u registar prevoznika za sopstvena potrebe'],c:1},
+  {q:'Izvod licence je:',o:['javna isprava kojom se potvrđuje da prevoznik ispunjava propisane uslove sa aspekta obavezne zdravstvene provere zaposlenih vozača.', 'javna isprava kojom nadležni organ potvrđuje da je autobus kojim domaći prevoznik obavlja javni prevoz putnika unet u rešenje o izdavanju licence za prevoz;.', 'javna isprava koja domaćem prevozniku daje pravo na obavljanje svih ili pojedinih vrsta prevoza.', 'potvrda o upisu u registar prevoznika za sopstvena potrebe'],c:1},
+  {q:'Prevoznik ispunjava finansijsku sposobnost za dobijanje licence za međunarodni javni prevoz ukoliko poseduje dokaz da raspolaže finansijskim sredstvima od:',o:['5000 evra za prvi autobus i po 2500 evra za svaki naredni.', '9000 evra za prvi autobus i po 5000 evra za svaki naredni;.', '2000 evra za prvi autobus i po 1000 evra za svaki naredni.', '10000 evra za prvi autobus i po 8000 evra za svaki naredni.'],c:1},
+  {q:'Međumesní prevoz obavlja se autobusom koji ispunjava propisane uslove za međugradske autobuse sa najmanje (koliko sedištа):',o:['10 sedišta', '18 sedišta.', '35 sedišta.', '50 sedišta'],c:1},
+  {q:'Ako putnik odustane od prevoza 2 časa pre otpočinjanja izvršenja prevoza prevoznik je dužan:',o:['da zadrži celokupan iznos plaćene prevoznine.', 'da mu promeni datum putovanja.', 'da mu vrati plaćenu prevozninu uz mogućnost zadržavanja najviše 10% od tog iznosa', 'mu vrati plaćenu prevozninu uz mogućnost zadržavanja najviše 20% od tog iznosa'],c:2},
+  {q:'CVR konvencija reguliše oblast:',o:['ugovor o međunarodnom prevozu tereta i robe drumom', 'radnog vremena člana posade vozila i tahografima', 'ugovora o međunarodnom drumskom prevozu putnika i prtljaga', 'načín dobijanja licenci, izvoda licenci, redova vožnje i dozvola.'],c:2},
+  {q:'CVR konvencija se primenjuje:',o:['samo u prevozu koji se u potpunosti obavlja na teritoriji republike srbije.', 'samo u međunarodnom drumskom prevozu putnika i prtljaga (najmanje dve države)', 'samo u međunarodnom drumskom prevozu tereta i robe.', 'i u međunarodnom drumskom prevozu putnika i prtljaga i u međđunarodnom drumskom prevozu tereta i robe.'],c:1},
+  {q:'CVR konvencija se primenjuje:',o:['kada se polazište i odredište, ili pak i jedno i drugo, nalaze na teritoriji jedne od država članica eu.', 'kada se polazište i odredište, ili pak i jedno i drugo, nalaze na teritoriji jedne od država ugovornica.', 'kada polazište i odredište ili pak i jedno i drugu nalazi na teritoriji jedne države a prilikom obavljanja prevoza ne prelazi se ni jedna državnga granica.', 'na teritorijama svih država na kojima se primenjuje regulativa eu o pravima putnka 181/2011.'],c:1},
+  {q:'U voznoj karti koja se izdaje po CVR konvenciji mora da se navede:',o:['ime i adresa prevoznika, kao i napomena da su za ugovor merodavne odredbe ove konvencije.', 'visina odštete koja je propisana po CVR konvenciji u slučaju smrti ili povrede putnika, odnosno gubitka prtljaga.', 'ime i adresa svakog putnika, kao i napomena da su za ugovor merodavne odredbe eu regulative o pravima putnika.', 'granični prelaz države u koju se putuje.'],c:0},
+  {q:'Posle kog perioda se prtljag smatra izgubljenim?',o:['posle 7 dana od od dana kada je putnik zahtevao da mu se preda prtiljag', 'posle 15 dana od od dana kada je putnik zahtevao da mu se preda prtiljag', 'posle 10 dana od od dana kada je putnik zahtevao da mu se preda prtiljag', 'posle 30 dana od od dana kada je putnik zahtevao da mu se preda prtiljag'],c:0},
+  {q:'Prtljag se smatra izgubljenim, po CVR konvenciji, ako nije dostavljen putniku u roku od:',o:['14 dana od dana kada je putnik zahtevao da mu se isti preda.', '24 časa od dana od kada je putnik zahtevao da mu se isti preda.', '60 dana od dana kada je putnika zahtevao da mu se isti preda.', 'nije propisan rok.'],c:0},
+  {q:'Reklamaciju na prtljag, po CVR konvenciji, putnik mora podneti prevozniku u roku od:',o:['7 dana posle faktičkog preuzimanja prtljaga.', '24 časa posle faktičkog preuzimanja prtljaga.', '60 dana posle faktičkog preuzimanja prtljaga.', 'nije propisan rok.'],c:0},
+  {q:'Posle kog perioda zastareva potraživanje stvari iz ugovora o prevozu',o:['posle godinu dana', 'posle 6 meseci', 'posle 30 dana', 'ništa od navedenog'],c:0},
+  {q:'Po CVR konvenciji ukupan iznos naknade koju je prevoznik dužan da isplati putniku usled smrti ili povrede ne može biti veći od',o:['250.000 franaka za jednog oštećenika.', '25.000 franaka za jednog oštećenika.', '1.000.000 dinara za jednog oštećenika.', 'nije propisan iznos.'],c:0},
+  {q:'Po CVR konvenciji naknada štete za potpuni ili delimični gubitak prtljaga ili za njegovo oštećenje ne može biti veća od:',o:['10.000 franaka po jedinici prtljaga ili 200.000 franaka ukupno.', '500 franaka po jedinici prtljaga ili 2000 franaka po jednom putniku.', '1.000.000 dinara za jednog putnika.', 'nije propisan iznos.'],c:1},
+  {q:'Ručni prtljag se prevozi:',o:['sa posebnom naknadom.', 'bez posebne naknade.', 'bez posebne naknade samo ako je lakši od 3 kg.', 'u boksovima autobusa.'],c:1},
+  {q:'Opšti princip slaganja prtljaga je:',o:['prvo se popunjavaju desni boksevi;', 'dole lakši a gore teži prtljag;', 'dole teži a gore lakši prtljag', 'veći prtljag nazad, manji napred.'],c:2},
+  {q:'Ukoliko se međumesni prevoz po registrovanom redu vožnje ne održi, prevoznik je dužan da:',o:['izvrši povraćaj 50% od naplaćene prevoznine i da putnike uputu na prevoz drugim vidovima transporta.', 'izvrši povraćaj pune prevoznine ili da organizuje prevoz svih putnika.', 'obavesti putnike da li će narednog dana održati polazak po istom redu vožnje i da ih zamoli da dođu tada.', 'obavesti putnike da će prevoznina koju su platili biti usmerena u humanitarne svrhe.'],c:1},
+  {q:'Originalni izvod licence za prevoz mora da se nalazi',o:['u vozilu', 'u sedištu firme', 'kod dispečera', 'sve navedeno'],c:0},
+  {q:'Da li u vozilima koji obavljaju međumesni prevoz mora da bude overen cenovnik',o:['ne mora', 'mora', 'zavisi od dužine linije', 'nije zakonski definisano'],c:1},
+  {q:'Opšte uslove međumesnog prevoza propisuje',o:['privredna komora srbije', 'ministarstvo saobraćaja', 'prevoznik', 'vlada republike srbije'],c:0},
+  {q:'Povremeni prevoz se obavlja kao:',o:['kružna vožnja zatvorenih vrata', 'prevoz organizovane grupe putnika - od polazišta do odredišta i povratak praz utobusa', 'prevoz organizovane grupe putnika - odlazak praznim, a povratak punim autobuss', 'sve od navedenog'],c:3},
+  {q:'Ako se prevoz obavlja po redu vožnje overenom od strane Ministarstva, na prednjoj stra autobusa mora da bude istaknut:',o:['broj linije', 'naziv linije', 'natpis vanlinijski prevoz', 'naziv i sedište prevoznika'],c:1},
+  {q:'Ko organizuje javni prigradski prevoz putnika?',o:['lokalna samouprava', 'prevoznik', 'država', 'niko od navedenih'],c:0},
+  {q:'Kada je potreban putni list?',o:['u međunarodnom linijskom prevozu', 'u međunarodnom vanlinijskom saobraćaju', 'u domaćem i međunarodnom vanlinijskom saobraćaju', 'u domaćem i međunarodnom linijskom prevozu'],c:2},
+  {q:'Prevoz radnika iz mesta stanovanja na posao i sa posla, kao i đaka i studenata stanovanja do škole i iz škole, sa posebnim identifikacionim voznim ispravama      (na mesečna, godišnja i sl.), koji se obavlja na osnovu pismenog ugovora i spiska putnin primanja drugih putnika je:',o:['vanlinijski prevoz', 'poseban linijski prevoz', 'linijski prevoz', 'ništa od navedenog'],c:1},
+  {q:'Prevoz od istog mesta pol ili mesta udaljenog najviše do 50 km od mesta polaska do istog mesta odredišta ili mudaljenog najviše do 50 km  od mesta  odredišta,      s tim što se svaka grupa   koja je oba putovanje u odlasku vraća u istom sastavu, tako da se prva vožnja u povratku i posle vožnja u odlasku, obavlja praznim autobusom naziva se:',o:['kružna vožnja', 'naizmenični prevoz', 'poseban linijski prevoz', 'linijski prevoz'],c:1},
+  {q:'U kojim slučajevima se u toku važenja reda vožnje linijski prevoz može privremeno obustaviti ili izmeniti?',o:['u slučaju prekida saobraćaja usled izvođenja radova na rekonstrukciji puta', 'u slučaju gužve u saobraćaju', 'u slučaju samostalne procene vozača', 'ništa od navedenog'],c:0},
+  {q:'Vozač koji obavlja linijski prevoz sa autobuske stanice, dužan je da postavi autobus na peron:',o:['prigradski 8 min pre polaska, međumesni 8-20 min, međunarodni 8-20 min', 'prigradski 5 min pre polaska, međumesni 8-15 min, međunarodni 8-30 min', 'prigradski 5 min pre polaska, međumesni 8-20 min, međunarodni 10-25 min', 'prigradski 15 min pre polaska, međumesni 30 min, međunarodni 30 min'],c:1},
+  {q:'Ugovor o prevozu putnika zaključuje se između:',o:['putnika i vozača', 'vozača i poslodavca, vlasnika autobusa, koji poseduje izvod licence.', 'prevozioca i putnika ili između prevozioca i naručioca prevoza', 'prevoznika i lica ovlašćenih za kontrolu obavljanja prevoza.'],c:2},
+  {q:'Autobus mora biti žute boje u slučaju:',o:['linijskog prevoza', 'vanlinijskog prevoza', 'posebnog linijskog prevoza', 'posebnog linijskog prevoza dece'],c:3},
+  {q:'Prema zakonu o radnom vremenu posade vozila u drumskom prevozu itahografima, dnevni odmor        (podeljeni dnevni odmor) se može podeliti na dva dela tako da:',o:['prvi deo traje neprekidno najmanje 9 časova, a drugi najmanje 3 časa', 'prvi deo trake neprekidno najmanje 3 časa, a drugi najmanje 9 časova', 'prvi deo traje neprekidno najmanje 5 časova, a drugi najmanje 9 časova', 'prvi deo traje neprekidno najmanje 3 časa, a drugi najmanje 8 časova'],c:1},
+  {q:'Vozač vozila kome upravljanje vozilom nije osnovno zanimanje, kada u saobraćaju na putu upravlja vozilom        za koje je potrebna Cl kategorija i kada vrši prevoz za sopstvene potrebe?',o:['sme da ima sadržaj alkohola u krvi do 0,50 mg/ml', 'sme da ima sadržaj alkohola u krvi do 0,30 mg/ml', 'sme da ima sadržaj alkohola u krvi do 0,20 mg/ml', 'ne sme da ima alkohola u krvi'],c:3},
+  {q:'Dokument kojim domaći prevoznik potvrđuje pošiljaocu da je zaključen ugovor o prevozu i da je teret primljen na prevoz je?',o:['TIR karnet', 'ATA karnet', 'tovarni list', 'otpremnica'],c:2},
+  {q:'Osnovni dokument koji prati robu u međunarodnom drumskom saobraćaju naziva se:',o:['CPC sertifikat', 'CEMT', 'CMR tovarni list', 'E1 obrazac'],c:2},
+  {q:'Proizvođačka tablica koja se nalazi na motornom vozilu sadrži:',o:['osnovne tehničke karakteristike za identihkaciju vozila', 'informacije o najvećim dozvoljenim masama', 'najveće dozvoljeno opterećenje po osovine', 'osnovne tehničke karakteristike za identifikaciju vozila i informaciju o najvećim dozvoljenim masama'],c:3},
+  {q:'Koliko iznosi maksimalna dužina vučnog vozila sa dve osovine?',o:['13,5 m', '15 m', '16,5 m', '12 m'],c:3},
+  {q:'Koliko iznosi maksimalna dužina tegljača sa poluprikolicom?',o:['13,5 m', '15 m', '16,5', '18,75 m'],c:2},
+  {q:'Koliko iznosi maksimalna dužina vučnog vozila sa prikolicom?',o:['13,5 m .', '15 m', '16,5 m', '18,75 m'],c:3},
+  {q:'Da bi bezbedno upravljao vozilom u saobraćaju, osnovno je da vozač:',o:['poseduje samo određena znanja', 'poseduje samo veštine', 'poseduje dugogodišnje iskustvoku upravljanju vozilom, a stavove će formirati u skladu sa mišljenjem okoline', 'poseduje određenja znanja, potrebne veštine i ispravne stavove'],c:3},
+  {q:'Specilična snaga se koristi kao pokazatelj:',o:['vučno - brzinskih performansi vozila', 'prosečne brzine kretanja vozila na usponu', 'maksimalnog broja obrtaja motora', 'ekonomičnosti i pouzdanosti moto'],c:0},
+  {q:'Sistem transmisije na vozilu:',o:['omogućava bolju iskorišćenost performansi vozila', 'omogućava da vozilo bolje koči', 'omogućava da vozilo vrši lakše pokretanje iz stanja mirovanja', 'nije potreban pri vožnji na autoputu i motoputu'],c:0},
+  {q:'Najznačajnija performansa ABS-a (Sistem protiv blokiranja točkov',o:['prilikom intezivnog kočenja je: a - znatno kraći put kočenja', 'pojačana snaga kočenja', 'moguća upravljivost vozilom', 'uvek ista vrednost sile kočenja bez obzira na vrstu podloge'],c:2},
+  {q:'Prilikom kretanja vozila pod teretom na njega deluje sila ubrzanja tereta F8 inedet ove Sile 0,8Fg je na:',o:['prednju stranicu vozila', 'zadnju stranicu vozila', 'bočnu stranicu vozila', 'na sve stranice vozila'],c:0},
+  {q:'Prema pravilniku o podeli motornih i priključnih vozila itehničkim uslovima za vozila u saobraćaju na      putevima, dnevna svetla spadaju u uređaje za:',o:['osvetljavanje puta', 'označavanje vozila', 'davanje svetlosnih znakova', 'normalnu vidljivost'],c:1},
+  {q:'Ako vozačevo ime i prezime ne može da stane u predviđenu rubriku na tahografskom listiću tada vozač može da:',o:['upiše samo inicijale imena i prezimena', 'mora da upiše samo puno prezime i inicijal imena', 'može da upiše samo inicijale u predviđenu rubriku ako na poleđini listića upiše puno ime i prezime', 'ništa od navedenog'],c:3},
+  {q:'Dozvola za prevoz tereta u međunarodnom drumskom transportu:',o:['nije obavezna, osim kod vanrednog prevoza', 'je javna isprava koja glasi na prevoznika i njome se prevozniku dozvoljava pristup i kretanje na teritoriji drugih država', 'je javna isprava koja glasi na prevoznika i njome se prevozniku dozvoljava pristup i to pravo se može preneti na drugog prevoznika', 'sve od navedenog'],c:1},
+  {q:'Prema vrsti prevoza pojedinačne dozvole mogu biti:',o:['za određeno područje, vrstu tereta, vrstu vozila i vrstu prevoza', 'multilateralne, cemt i tranzitne', 'pojedinačne, vremenske i multilateralne', 'bilateralne, tranzitne i dozvole iz ili za treće države'],c:3},
+  {q:'Kratkoročne dozvole izdaju se sa rokom važenja od:',o:['30 dana', '45 dana', '60 dana', 'do jedne godine'],c:0},
+  {q:'Potvrda o Fitosanitarnom pregledu:',o:['garantuje da je sadržaj pošiljke ispitan i da ne sadrži opasne štetočine i biljne bolesti', 'potvrđuje da je vozač zdrav .,', 'potvrđuje da se ne prevoze opasne materije u vozilu', 'ništa od navedenog'],c:0},
+  {q:'Pečat na dozvoli, prikazan na slici, predstavlja:',o:['dozvoljen pristup tržištu samo za vozila kategorije evro lv', 'dozvoljen pristup tržištu vozilima kategorije evro |v i višim kategorijama', 'ne dozvoljen pristup tržištu samo za vozila kategorije evro |v', 'ne dozvoljen pristup tržištu vozilima kategorije evro iv i nižim kategorijama'],c:1},
+  {q:'Interbus sporazum se primenuje na:',o:['međunarodni naizmenični prevoz', 'međunarodno povremeni vanlinijski prevoz', 'domaći linijski prevoz', 'domaći vanlinijski prevoz'],c:1},
+  {q:'Multilateralni prevoz je:',o:['prevoz koji se obavlja između Srbije i druge zemlje', 'prevoz koji se obavlja između tri ili više država od kojih je jdna Srbija pri čemu je dozvoljeno ukrcavanje i isrkcavanje putnika na teritorijama svih država', 'javni prevoz koji se obavlja na određenoj liniji, određenom učestalošću, pri čemu se putnici ukrcavaju i isrkcavaju na unapred određenim stanicama', 'sve navedeno'],c:1},
+  {q:'Ako želi nadoknadu putnik može odustati od prevoza:',o:['najkasnije 5 minuta pre polaska', 'najkasnije 1 sat pre polaska', 'najkasnije 2 sata pre polaska', 'nema prava da odustane'],c:2},
+  {q:'U slučaju da je u toku prevoza došlo do prekida putovanje iz razloga za koje putnik nije odgovoran, putnik ima pravo da:',o:['zahteva od prevoznika da mu organizuje put do odredišta', 'da zahteva od prevoznika povratak u polazno mesto i povraćaj novca', 'da odustane od daljeg putovanja i traži povraćaj novca', 'sve navedeno'],c:3},
+  {q:'Ukupan iznos naknade koju prevozik može da isplati putniku kao nadoknadu ne može biti veća od',o:['50.000 f', '150.000 f', '200.000 f', '250.000 f'],c:3},
+  {q:'Prema CVR konvenciji naknada za oštećeni prtljag je',o:['500 f po prtljagu, 2000 po putniku', '000f po prtljagu, 500 f po putniku', '300 f po prtljagu, 2000 f po putniku', '500 f po prtljagu, 2500 f po putniku'],c:0},
+  {q:'Da li u vozilima koja obavljaju međumesni prevoz mora bit overeni cenovnik:',o:['ne mora', 'mora', 'zavisi od dužine linije', 'nije zakonski definisano'],c:1},
+  {q:'U međumesnom prevozu obavezan dokument je:',o:['putni list', 'spisak putnika', 'putni nalog', 'sve navedeno'],c:2},
+  {q:'Čime e definisano mesto i vreme polaska autobusa u linijskom prevozu putnika:',o:['putnim listom', 'putnim nalogom', 'redom vožnje', 'putnim listom i putnim nalogom'],c:2},
+  {q:'Šta je obrtni momenat:',o:['količnik sile i udaljenosti mesta delovanja sile od ose rotacije', 'proizvod sile i udaljenosti mesta delovanja sile', 'proizvod sile i udaljenosti mesta delovana sile od ose rotacije', 'količnik sile i udaljenosti mesta delovanja sile'],c:2},
+  {q:'Snaga je ____________ izvršavanja rada',o:['brzina', 'sposobnost', 'efikasnost', 'ekonomičnost'],c:0},
+  {q:'Koji elementi čine sistem prenosa?',o:['motor i menjač', 'spojnica i zglobno vratilo', 'zvono spojnice i glavni prenostnik diferencijal', 'sve navedeno'],c:3},
+  {q:'Šta karakteriše ekonomičnost rada motora?',o:['specifična potrošnja goriva', 'zapreminska potrošnja goriva', 'masena potrošnja goriva', 'vremenska potrošnja goriva'],c:0},
+  {q:'Za teška motorna vozila specijane namene koristi se:',o:['leptir motorna kočnica-retarder', 'motor kompresor trajni usporivač', 'elektromagnetski trajni usporivač', 'hidrodinamički trajni usporivač'],c:3},
+  {q:'U kom stepenu prenosa je najveće ubrzanje kod vozila?',o:['prvom', 'drugom', 'trećem', 'najvišem'],c:0},
+  {q:'Pojam specifične snage motora:',o:['koristi se kao pokazatelj vučno-brzinskim svojstava motora', 'koristi se u postupcima održavanja motora', 'koristi se za odreživanje radnog režima motora', 'sve od navedenog'],c:1},
+  {q:'Koliko se puta povećava rizik od saobaćajne nezgode kada je vozač umoran',o:['četiri puta', 'dva puta', 'osam puta', 'ne povećava se'],c:0},
+  {q:'Obavezan dokument prilikom obavljanja međumesnog linijskog prevoza putnka je:',o:['fotokopija reda vožnje overena i potpisana od strane prevoznika', 'ugovor o vanlinijskom prevozu putnika', 'vozačka dozvola', 'sve od navedenog'],c:0},
+  {q:'Po CVR konvenciji koliki je rok za prijavu nestanka il oštećenja prtljaga?',o:['7 dana', '14 dana', '21 dan', '28 dana'],c:1},
+  {q:'Po CVR konvenciji, prevoznik je dužan da putniku izda voznu kartu:',o:['pojedinačnu ili kolektivnu', 'Iinijsku voznu kartu', 'vanlinijsku voznu kartu', 'ništa od navedenog'],c:0},
+  {q:'Reklamacija na izdati prtljag se mora podneti prevozniku u usmenoj ili pismenoj formi u roku od:',o:['7 dana od momenta preuzimanja', '14 dana od momenta preuzimanja', '21 dan od momenta preuzimanja', '28 dana od momenta preuzimanja'],c:0},
+  {q:'Koliko iznosi maksimalna dužina autobusa sa 2 osovine?',o:['13,5 m', '15 m', '16,5 m', '18,75 m'],c:0},
+  {q:'Koliko iznosi maksimalna dužina autobusa sa 3 ili više osovina?',o:['13,5 m', '15 m', '16,5', '18,75 m'],c:1},
+  {q:'Koliko iznosi maksimalna dužina zglobnog autobusa sa dve ili više okretnica?',o:['13,5 m', '25 m', '16,5 m', '18,75 m'],c:1}
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ===== VEŽBA =====
+let vezbaQ=[], vezbaIdx=0, vezbaStreak=0;
+
+function startVezba(){
+  vezbaQ=shuffle(BAZA);
+  vezbaIdx=0;
+  vezbaStreak=0;
+  show('vezba-screen');
+  renderVezba();
+}
+
+function startGreske(){
+  if(greske.length===0){alert('Nemaš grešaka u ovoj sesiji!');return;}
+  vezbaQ=shuffle(greske);
+  vezbaIdx=0;
+  vezbaStreak=0;
+  show('vezba-screen');
+  renderVezba();
+}
+
+function renderVezba(){
+  if(vezbaIdx>=vezbaQ.length){
+    document.getElementById('vezba-body').innerHTML=`
+      <div style="text-align:center;padding:30px 0">
+        <div style="font-size:52px;margin-bottom:12px">🏆</div>
+        <div style="font-size:28px;font-weight:900;color:var(--navy);font-family:var(--mono)">Završeno!</div>
+        <div style="font-size:14px;color:#6b7280;margin:10px 0 24px">Prošao/la si kroz sva pitanja.</div>
+        <button onclick="startVezba()" style="width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;font-family:var(--sans)">🔄 Ponovi od početka</button>
+        <button onclick="show('home-screen')" style="width:100%;padding:13px;background:var(--bg);border:2px solid var(--border);border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">← Nazad</button>
+      </div>`;
+    updateHomeStats();
+    return;
+  }
+  const q=vezbaQ[vezbaIdx];
+  const pct=Math.round((vezbaIdx/vezbaQ.length)*100);
+  document.getElementById('vezba-streak').textContent='🔥 '+vezbaStreak;
+  let html=`
+    <div class="vezba-counter">
+      <span>${vezbaIdx+1} / ${vezbaQ.length}</span>
+      <span style="color:var(--green);font-weight:700">${sessionDone>0?Math.round(sessionCorrect/sessionDone*100)+'% tačno':''}</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="q-text">${q.q}</div>
+    <div id="v-opts">`;
+  q.o.forEach((o,i)=>{
+    html+=`<button class="opt" id="v-o${i}" onclick="answerVezba(${i},${q.c},this)">${o}</button>`;
+  });
+  html+=`</div>
+    <div class="exp-box" id="v-exp"></div>
+    <button class="next-btn" id="v-next" onclick="nextVezba()">Sledeće →</button>`;
+  document.getElementById('vezba-body').innerHTML=html;
+}
+
+function answerVezba(chosen,correct,btn){
+  document.querySelectorAll('#v-opts .opt').forEach(b=>b.disabled=true);
+  sessionDone++;
+  if(chosen===correct){
+    btn.classList.add('correct');
+    sessionCorrect++;
+    vezbaStreak++;
+  }else{
+    btn.classList.add('wrong');
+    document.getElementById('v-o'+correct).classList.add('reveal');
+    vezbaStreak=0;
+    const q=vezbaQ[vezbaIdx];
+    if(!greske.find(g=>g.q===q.q)) greske.push(q);
+  }
+  // Objasnjenje - generišemo automatski
+  const exp=document.getElementById('v-exp');
+  const q=vezbaQ[vezbaIdx];
+  exp.innerHTML=`<strong>Tačan odgovor:</strong> ${q.o[correct]}`;
+  exp.style.display='block';
+  document.getElementById('v-next').classList.add('show');
+  updateHomeStats();
+}
+
+function nextVezba(){
+  vezbaIdx++;
+  renderVezba();
+}
+
+// ===== TEST =====
+let testQ=[], testIdx=0, testAnswers=[];
+
+function startTest(){
+  testQ=shuffle(BAZA).slice(0,30);
+  testIdx=0;
+  testAnswers=[];
+  show('test-screen');
+  renderTest();
+}
+
+function renderTest(){
+  if(testIdx>=testQ.length){
+    showResult();
+    return;
+  }
+  const q=testQ[testIdx];
+  const pct=Math.round((testIdx/testQ.length)*100);
+  let html=`
+    <div class="test-header-info">
+      Pitanje ${testIdx+1} od 30 · Prolaznost: 75% (23/30 tačnih)
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="q-text">${q.q}</div>
+    <div id="t-opts">`;
+  q.o.forEach((o,i)=>{
+    html+=`<button class="opt" id="t-o${i}" onclick="answerTest(${i},${q.c})">${o}</button>`;
+  });
+  html+=`</div>
+    <div class="exp-box" id="t-exp"></div>
+    <button class="next-btn" id="t-next" onclick="nextTest()">
+      ${testIdx===testQ.length-1?'Završi test →':'Sledeće →'}
+    </button>`;
+  document.getElementById('test-body').innerHTML=html;
+}
+
+function answerTest(chosen,correct){
+  document.querySelectorAll('#t-opts .opt').forEach(b=>b.disabled=true);
+  document.getElementById('t-o'+chosen).classList.add(chosen===correct?'correct':'wrong');
+  if(chosen!==correct) document.getElementById('t-o'+correct).classList.add('reveal');
+  testAnswers.push({chosen,correct,q:testQ[testIdx]});
+  // Kratko objasnjenje
+  const exp=document.getElementById('t-exp');
+  exp.innerHTML=`<strong>Tačan odgovor:</strong> ${testQ[testIdx].o[correct]}`;
+  exp.style.display='block';
+  document.getElementById('t-next').classList.add('show');
+}
+
+function nextTest(){
+  testIdx++;
+  renderTest();
+}
+
+function showResult(){
+  const total=testAnswers.length;
+  const correct=testAnswers.filter(a=>a.chosen===a.correct).length;
+  const wrong=total-correct;
+  const pct=Math.round(correct/total*100);
+  const pass=pct>=75;
+
+  sessionDone+=total;
+  sessionCorrect+=correct;
+  testAnswers.filter(a=>a.chosen!==a.correct).forEach(a=>{
+    if(!greske.find(g=>g.q===a.q.q)) greske.push(a.q);
+  });
+  updateHomeStats();
+
+  let reviewHtml='';
+  testAnswers.forEach((a,i)=>{
+    const isOk=a.chosen===a.correct;
+    reviewHtml+=`
+      <div class="review-item ${isOk?'ok':'bad'}">
+        <div class="review-q">${i+1}. ${a.q.q}</div>
+        ${!isOk?`<div class="review-ans wrong">✗ Tvoj odgovor: ${a.q.o[a.chosen]}</div>`:''}<div class="review-ans correct">✓ Tačno: ${a.q.o[a.correct]}</div>
+      </div>`;
+  });
+
+  document.getElementById('result-body').innerHTML=`
+    <div style="text-align:center;padding:16px 0 20px">
+      <div style="font-size:52px;margin-bottom:10px">${pass?'🎉':'📚'}</div>
+      <div style="font-size:40px;font-weight:900;font-family:var(--mono);color:${pass?'var(--green)':'var(--red)'}">${pct}%</div>
+      <div style="font-size:14px;font-weight:700;color:${pass?'var(--green)':'var(--red)'};margin:6px 0 20px">
+        ${pass?'POLOŽIO/LA ✅':'NIJE POLOŽIO/LA ❌'}
+      </div>
+    </div>
+    <div class="score-grid">
+      <div class="score-box ok"><div class="sn">${correct}</div><div class="sl">Tačnih</div></div>
+      <div class="score-box bad"><div class="sn">${wrong}</div><div class="sl">Netačnih</div></div>
+    </div>
+    <div style="font-size:12px;color:#6b7280;text-align:center;margin-bottom:20px;font-family:var(--mono)">
+      Prolaznost: 75% = 23/30 tačnih
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">Pregled odgovora:</div>
+    ${reviewHtml}
+    <button onclick="startTest()" style="width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;margin-bottom:8px;font-family:var(--sans)">🔄 Novi test</button>
+    <button onclick="show('home-screen')" style="width:100%;padding:13px;background:var(--bg);border:2px solid var(--border);border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">← Nazad na meni</button>`;
+
+  show('result-screen');
+}
+</script>
+</body>
+</html>
